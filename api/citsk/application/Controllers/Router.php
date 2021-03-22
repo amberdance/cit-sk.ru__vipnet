@@ -4,8 +4,8 @@ namespace Citsk\Controllers;
 
 use Citsk\Exceptions\RouterException;
 use Citsk\Interfaces\Controllerable;
-use Citsk\Library\Identity;
 use Citsk\Library\Shared;
+use Citsk\Models\Identity;
 use Exception;
 
 final class Router
@@ -32,14 +32,15 @@ final class Router
     public function initializeParameters(): Router
     {
 
-        $params = explode('/', $_SERVER['REQUEST_URI']);
+        $params     = explode('/', $_SERVER['REQUEST_URI']);
+        $splitIndex = 3;
 
-        if (count($params) <= 2) {
-            throw new RouterException("Handler is not defined in HTTP params");
+        if (count($params) > 4) {
+            $splitIndex = count($params) - 1;
         }
 
-        $this->controllerName = $params[1];
-        preg_match("/^([^?]+)(\?.*?)?(#.*)?$/", $params[2], $matches);
+        $this->controllerName = $params[2];
+        preg_match("/^([^?]+)(\?.*?)?(#.*)?$/", $params[$splitIndex], $matches);
         $this->requestedAction = $matches[1];
 
         return $this;
@@ -50,8 +51,9 @@ final class Router
      */
     public function setHTTPHeaders(): Router
     {
-        if ($_SERVER['REQUEST_URI'] == '/' || $_SERVER['REQUEST_URI'] == '/index.php') {
-            die(http_response_code(404));
+
+        if ($_SERVER['REQUEST_URI'] == '/index.php' || $_SERVER['REQUEST_URI'] == '/') {
+            die(http_response_code(403));
         }
 
         if (isset($_SERVER['HTTP_ORIGIN'])) {

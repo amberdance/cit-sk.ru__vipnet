@@ -1,17 +1,17 @@
 <?php
 $routes = [
     [
-        'path'       => '/^\/auth\//',
+        'path'       => '/^\/api\/auth\//',
         'controller' => 'Citsk\Controllers\UserController',
     ],
 
     [
-        'path'       => '/^\/refs\//',
+        'path'       => '/^\/api\/refs\//',
         'controller' => 'Citsk\Controllers\ReferenceController',
     ],
 
     [
-        'path'       => '/^\/service\//',
+        'path'       => '/^\/api\/service\//',
         'controller' => 'Citsk\Controllers\ServiceAPIController',
     ],
 ];

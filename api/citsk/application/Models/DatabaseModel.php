@@ -1,7 +1,8 @@
 <?php
-namespace Citsk\Library;
+namespace Citsk\Models;
 
 use Citsk\Exceptions\DataBaseException;
+use Citsk\Library\PDOBase;
 use Exception;
 use PDO;
 
@@ -11,7 +12,7 @@ use PDO;
  * @property string $dbTable
  *
  */
-class MySQLHelper
+class DatabaseModel
 {
 
     /**
@@ -66,15 +67,16 @@ class MySQLHelper
 
     public function __construct()
     {
+
         $this->dbConnection = new PDOBase;
     }
 
     /**
      * @param string $dbTable
      *
-     * @return MySQLHelper
+     * @return DatabaseModel
      */
-    public function setDbTable(string $dbTable): MySQLHelper
+    public function setDbTable(string $dbTable): DatabaseModel
     {
         $this->dbTable = $dbTable;
 
@@ -82,53 +84,16 @@ class MySQLHelper
     }
 
     /**
-     * @return string|null
-     */
-    public function getQueryString(): ?string
-    {
-        return $this->queryString;
-    }
-
-    /**
-     * @return int
-     */
-    public function getInsertedId(): int
-    {
-        return $this->lastInsertedId;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getDbTable(): ?string
-    {
-        return $this->dbTable;
-    }
-
-    /**
-     * @return MySQLHelper
-     */
-    public function skipArgs(): MySQLHelper
-    {
-        $this->isSkipArgs = true;
-
-        return $this;
-    }
-
-    /**
-     * Main query building method
-     *
-     * @param array|string|null $select
+     * @param null $fieldsFields
      * @param array|null $filter
-     * @param array|null $filters
      * @param array|null $join
      *
-     * @return MySQLHelper
+     * @return DatabaseModel
      */
-    public function getList($select = null, ?array $filter = null, ?array $join = null): MySQLHelper
+    public function select($fieldsFields = null, ?array $filter = null, ?array $join = null): DatabaseModel
     {
 
-        $this->setFields($select)
+        $this->setFields($fieldsFields)
             ->setJoinFieldsIfExists($join)
             ->setFilterFieldsIfExists($filter);
 
@@ -143,9 +108,9 @@ class MySQLHelper
      * @param string $query
      * @param array $args
      *
-     * @return MySQLHelper
+     * @return DatabaseModel
      */
-    public function customQuery(string $query, array $args = []): MySQLHelper
+    public function customQuery(string $query, array $args = []): DatabaseModel
     {
 
         $this->queryString = $query;
@@ -154,204 +119,6 @@ class MySQLHelper
         $this->runQuery();
 
         return $this;
-    }
-
-    /**
-     * @param array $fields
-     *
-     * @return MySQLHelper
-     */
-    public function setSorting(array $fields): MySQLHelper
-    {
-
-        $sortStroke = "ORDER BY ";
-
-        foreach ($fields as $key => $field) {
-            $sortStroke .= "$key $field, ";
-        }
-
-        $sortStroke = trim($sortStroke, ', ');
-
-        $this->queryString .= " $sortStroke";
-
-        return $this;
-    }
-
-    /**
-     * @param array $fields
-     *
-     * @return MySQLHelper
-     */
-    public function setGrouping(array $fields): MySQLHelper
-    {
-
-        $groupStroke = null;
-
-        foreach ($fields as $field) {
-            $groupStroke .= "GROUP BY $field, ";
-        }
-
-        $groupStroke = trim($groupStroke, ', ');
-
-        $this->queryString .= " $groupStroke";
-
-        return $this;
-    }
-
-    /**
-     * @param int|null $limiter
-     *
-     * @return MySQLHelper
-     */
-    public function setLimit(?int $limiter): MySQLHelper
-    {
-        if (!$limiter) {
-            return $this;
-        }
-
-        $this->queryString .= " LIMIT $limiter";
-
-        return $this;
-
-    }
-
-    /**
-     * @param array $fields
-     *
-     * @return MySQLHelper
-     */
-    public function add(array $fields): MySQLHelper
-    {
-
-        $this->setInsertFileds($fields);
-
-        if (!$this->isSkipArgs) {
-            $this->setArgs($fields);
-        }
-
-        if ($this->isTransactionBegin) {
-
-            $this->transactions[] = [
-                'query' => $this->queryString,
-                'args'  => $this->args,
-            ];
-
-            return $this;
-        }
-
-        $this->runQuery(true);
-        $this->lastInsertedId = $this->PDOInstance->lastInsertId();
-
-        if (!boolval($this->lastInsertedId)) {
-            throw new DataBaseException("Insert failed");
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param array $updateFields
-     * @param array $filter
-     * @param array|null $join
-     *
-     * @return MySQLHelper
-     */
-    public function update(array $updateFields, array $filter = [], ?array $join = null): MySQLHelper
-    {
-        $joinString = null;
-
-        if ($join) {
-            $joinString = $this->setJoinFieldsIfExists($join, true);
-        }
-
-        $this->setUpdateFields($updateFields, $joinString)
-            ->setFilterFieldsIfExists($filter);
-
-        if (!$this->isSkipArgs) {
-            $this->setArgs(array_merge($updateFields, $filter));
-        }
-
-        if ($this->isTransactionBegin) {
-            $this->transactions[] = [
-                'query' => $this->queryString,
-                'args'  => $this->args,
-            ];
-
-            return $this;
-        }
-
-        $this->runQuery();
-
-        return $this;
-
-    }
-
-    /**
-     * @param array|string|null $deleteFields
-     * @param array|null $filter
-     * @param array|null $args
-     * @param array|null $join
-     *
-     * @return MySQLHelper
-     */
-    public function delete($deleteFields = null, ?array $filter = null, ?array $join = null): MySQLHelper
-    {
-        $this->setFields($deleteFields, 'DELETE')
-            ->setJoinFieldsIfExists($join)
-            ->setFilterFieldsIfExists($filter);
-
-        if (!$this->isSkipArgs) {
-            $this->setArgs($filter);
-        }
-
-        if ($this->isTransactionBegin) {
-
-            $this->transactions[] = [
-                'query' => $this->queryString,
-                'args'  => $this->args,
-            ];
-
-            return $this;
-
-        } else {
-            $this->runQuery();
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return void
-     */
-    public function startTransaction(): void
-    {
-        $this->isTransactionBegin = true;
-    }
-
-    /**
-     * @return void
-     *
-     * @throws DataBaseException
-     */
-    public function executeTransaction(): void
-    {
-
-        try {
-            $this->PDOInstance = $this->getConnection()->getInstance();
-            $this->PDOInstance->beginTransaction();
-
-            foreach ($this->transactions as $transaction) {
-                $statement = $this->PDOInstance->prepare($transaction['query']);
-                $statement->execute($transaction['args']);
-            }
-
-            $this->PDOInstance->commit();
-
-        } catch (Exception $e) {
-            $this->PDOInstance->rollBack();
-
-            throw new DataBaseException($e->getMessage());
-        }
     }
 
     /**
@@ -385,7 +152,6 @@ class MySQLHelper
      * 2- PDO::FETCH_ASSOC
      * 5- PDO::FETCH_OBJ
      * 7 PDO::FETCH_COLUMN
-     * 524288 - PDO::FETCH_SERIALIZE
      *
      * @return array|null
      */
@@ -407,9 +173,296 @@ class MySQLHelper
     }
 
     /**
+     * @return string|null
+     */
+    protected function getQuery(): ?string
+    {
+        return $this->queryString;
+    }
+
+    /**
+     * @return int
+     */
+    protected function getInsertedId(): int
+    {
+        return $this->lastInsertedId;
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function getDbTable(): ?string
+    {
+        return $this->dbTable;
+    }
+
+    /**
+     * @param array|null $args
+     *
+     * @return DatabaseModel
+     */
+    protected function setArgs(?array $args): DatabaseModel
+    {
+        if (!$args) {
+            return $this;
+        }
+
+        unset($this->args);
+
+        foreach ($args as $key => $value) {
+            if (is_numeric(strpos($key, ":"))) {
+                $this->skipArgs();
+                $this->args[$key] = $value;
+            } else {
+                $this->args[$this->getPlaceHolder($key)] = $value;
+                // $this->args[$this->getPlaceHolder($key)] = trim(preg_replace("/[^\w\s.,-:\/]/u", "", $value));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return DatabaseModel
+     */
+    protected function skipArgs(): DatabaseModel
+    {
+        $this->isSkipArgs = true;
+
+        return $this;
+    }
+
+    /**
+     * @param array $fields
+     *
+     * @return DatabaseModel
+     */
+    protected function setSorting(array $fields): DatabaseModel
+    {
+
+        $sortStroke = "ORDER BY ";
+
+        foreach ($fields as $key => $field) {
+            $sortStroke .= "$key $field, ";
+        }
+
+        $sortStroke = trim($sortStroke, ', ');
+
+        $this->queryString .= " $sortStroke";
+
+        return $this;
+    }
+
+    /**
+     * @param array $fields
+     *
+     * @return DatabaseModel
+     */
+    protected function setGrouping(array $fields): DatabaseModel
+    {
+
+        $groupStroke = null;
+
+        foreach ($fields as $field) {
+            $groupStroke .= "GROUP BY $field, ";
+        }
+
+        $groupStroke = trim($groupStroke, ', ');
+
+        $this->queryString .= " $groupStroke";
+
+        return $this;
+    }
+
+    /**
+     * @param int|null $limiter
+     *
+     * @return DatabaseModel
+     */
+    protected function setLimit(?int $limiter): DatabaseModel
+    {
+        if (!$limiter) {
+            return $this;
+        }
+
+        $this->queryString .= " LIMIT $limiter";
+
+        return $this;
+
+    }
+
+    /**
+     * @param array $fields
+     *
+     * @return DatabaseModel
+     */
+    protected function add(array $fields): DatabaseModel
+    {
+
+        $this->setInsertFileds($fields);
+
+        if (!$this->isSkipArgs) {
+            $this->setArgs($fields);
+        }
+
+        if ($this->isTransactionBegin) {
+
+            $this->transactions[] = [
+                'query' => $this->queryString,
+                'args'  => $this->args,
+            ];
+
+            return $this;
+        }
+
+        $this->runQuery(true);
+        $this->lastInsertedId = $this->PDOInstance->lastInsertId();
+
+        if (!boolval($this->lastInsertedId)) {
+            throw new DataBaseException("Insert failed");
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array $updateFields
+     * @param array $filter
+     * @param array|null $join
+     *
+     * @return DatabaseModel
+     */
+    protected function update(array $updateFields, array $filter = [], ?array $join = null): DatabaseModel
+    {
+        $joinString = null;
+
+        if ($join) {
+            $joinString = $this->setJoinFieldsIfExists($join, true);
+        }
+
+        $this->setUpdateFields($updateFields, $joinString)
+            ->setFilterFieldsIfExists($filter);
+
+        if (!$this->isSkipArgs) {
+            $this->setArgs(array_merge($updateFields, $filter));
+        }
+
+        if ($this->isTransactionBegin) {
+            $this->transactions[] = [
+                'query' => $this->queryString,
+                'args'  => $this->args,
+            ];
+
+            return $this;
+        }
+
+        $this->runQuery();
+
+        return $this;
+
+    }
+
+    /**
+     * @param array|null $filter
+     *
+     * @return DatabaseModel
+     */
+    protected function delete(?array $filter = null): DatabaseModel
+    {
+        $this->setFields(null, 'DELETE')->setFilterFieldsIfExists($filter);
+
+        if (!$this->isSkipArgs) {
+            $this->setArgs($filter);
+        }
+
+        if ($this->isTransactionBegin) {
+
+            $this->transactions[] = [
+                'query' => $this->queryString,
+                'args'  => $this->args,
+            ];
+
+            return $this;
+
+        } else {
+            $this->runQuery();
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array|string|null $deleteFields
+     * @param array|null $filter
+     * @param array|null $args
+     * @param array|null $join
+     *
+     * @return DatabaseModel
+     */
+    protected function deleteWithJoin($deleteFields = null, ?array $filter = null, ?array $join = null): DatabaseModel
+    {
+        $this->setFields($deleteFields, 'DELETE')
+            ->setJoinFieldsIfExists($join)
+            ->setFilterFieldsIfExists($filter);
+
+        if (!$this->isSkipArgs) {
+            $this->setArgs($filter);
+        }
+
+        if ($this->isTransactionBegin) {
+
+            $this->transactions[] = [
+                'query' => $this->queryString,
+                'args'  => $this->args,
+            ];
+
+            return $this;
+
+        } else {
+            $this->runQuery();
+        }
+
+        return $this;
+    }
+
+    /**
      * @return void
      */
-    public function closeConnection(): void
+    protected function startTransaction(): void
+    {
+        $this->isTransactionBegin = true;
+    }
+
+    /**
+     * @return void
+     *
+     * @throws DataBaseException
+     */
+    protected function executeTransaction(): void
+    {
+
+        try {
+            $this->PDOInstance = $this->getConnection()->getInstance();
+            $this->PDOInstance->beginTransaction();
+
+            foreach ($this->transactions as $transaction) {
+                $statement = $this->PDOInstance->prepare($transaction['query']);
+                $statement->execute($transaction['args']);
+            }
+
+            $this->PDOInstance->commit();
+
+        } catch (Exception $e) {
+            $this->PDOInstance->rollBack();
+
+            throw new DataBaseException($e->getMessage());
+        }
+    }
+
+    /**
+     * @return void
+     */
+    protected function closeConnection(): void
     {
         $this->dbConnection       = null;
         $this->statement          = null;
@@ -423,11 +476,9 @@ class MySQLHelper
      */
     private function getConnection()
     {
-        if (!$this->dbConnection) {
-            $this->dbConnection = new PDOBase;
-        }
 
-        return $this->dbConnection;
+        return $this->dbConnection ?? new PDOBase();
+
     }
 
     /**
@@ -453,9 +504,9 @@ class MySQLHelper
      * @param array|string|null $fields
      * @param string $action
      *
-     * @return MySQLHelper
+     * @return DatabaseModel
      */
-    private function setFields($fields, string $action = "SELECT"): MySQLHelper
+    private function setFields($fields, string $action = "SELECT"): DatabaseModel
     {
         $queryFields = null;
 
@@ -470,10 +521,8 @@ class MySQLHelper
 
         } elseif (is_string($fields)) {
             $queryFields = $fields;
-        } else {
-            if ($action == 'SELECT') {
-                $queryFields = "*";
-            }
+        } elseif ($action == 'SELECT') {
+            $queryFields = "*";
         }
 
         $this->queryString = "$action $queryFields FROM {$this->dbTable}";
@@ -484,9 +533,9 @@ class MySQLHelper
     /**
      * @param array $rawFields
      *
-     * @return MySQLHelper
+     * @return DatabaseModel
      */
-    private function setInsertFileds(array $rawFields): MySQLHelper
+    private function setInsertFileds(array $rawFields): DatabaseModel
     {
 
         $fields = [];
@@ -509,9 +558,9 @@ class MySQLHelper
      * @param array $rawFields
      * @param string $joinUpdateString
      *
-     * @return MySQLHelper
+     * @return DatabaseModel
      */
-    private function setUpdateFields(array $rawFields, ?string $joinUpdateString = ""): MySQLHelper
+    private function setUpdateFields(array $rawFields, ?string $joinUpdateString = ""): DatabaseModel
     {
 
         $fields = "";
@@ -531,9 +580,9 @@ class MySQLHelper
     /**
      * @param array|null $filter
      *
-     * @return MySQLHelper
+     * @return DatabaseModel
      */
-    private function setFilterFieldsIfExists(?array $filter = null): MySQLHelper
+    private function setFilterFieldsIfExists(?array $filter = null): DatabaseModel
     {
 
         if (!$filter) {
@@ -571,7 +620,7 @@ class MySQLHelper
      * @param array|null $join
      * @param bool $isJoinUpdate
      *
-     * @return MySQLHelper|string
+     * @return DatabaseModel|string
      */
     private function setJoinFieldsIfExists(?array $join = null, bool $isJoinUpdate = false)
     {
@@ -601,24 +650,6 @@ class MySQLHelper
             }
 
             return $this;
-        }
-    }
-
-    /**
-     * @param array|null $rawArgs
-     *
-     * @return void
-     */
-    public function setArgs(?array $rawArgs): void
-    {
-        if (!$rawArgs) {
-            return;
-        }
-
-        unset($this->args);
-
-        foreach ($rawArgs as $key => $value) {
-            $this->args[$this->getPlaceHolder($key)] = trim(preg_replace("/[^\w\s.,-:\/]/u", "", $value));
         }
     }
 

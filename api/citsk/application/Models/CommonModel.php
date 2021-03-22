@@ -1,10 +1,10 @@
 <?php
 namespace Citsk\Models;
 
-use Citsk\Library\MySQLHelper;
+use Citsk\Models\DatabaseModel;
 use Citsk\Models\Structure\CommonStructure;
 
-class Common extends MySQLHelper
+class CommonModel extends DatabaseModel
 {
 
     /**
@@ -47,7 +47,7 @@ class Common extends MySQLHelper
         ];
 
         $rows = $this->setDbTable("signature_type")
-            ->getList($select)
+            ->select($select)
             ->getRows();
 
         return new CommonStructure($rows);
@@ -76,7 +76,7 @@ class Common extends MySQLHelper
                 "event_id"  => 2,
             ];
 
-            $this->setDbTable($dbTable)->delete(null, $filter);
+            $this->setDbTable($dbTable)->delete($filter);
         }
 
         $this->setDbTable($dbTable)->add($insert);
@@ -94,7 +94,7 @@ class Common extends MySQLHelper
             "id" => $id,
         ];
 
-        $this->setDbTable($dbTable ?? $this->dbTable)->delete(null, $filter);
+        $this->setDbTable($dbTable ?? $this->dbTable)->delete($filter);
     }
 
     /**
@@ -112,9 +112,7 @@ class Common extends MySQLHelper
             "id" => $id,
         ];
 
-        return $this->setDbTable($dbTable)
-            ->getList($select, $filter)
-            ->getColumn();
+        return $this->setDbTable($dbTable)->select($select, $filter)->getColumn();
     }
 
     /**
@@ -138,10 +136,10 @@ class Common extends MySQLHelper
         ];
 
         $rows = $this->setDbTable("connections connection")
-            ->getList($select, null, $join)
+            ->select($select, null, $join)
             ->setSorting($sort)
             ->getRows();
 
-        return new CommonStructure($rows, "sessionList");
+        return new CommonStructure($rows, "SessionList");
     }
 }

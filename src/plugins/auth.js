@@ -54,7 +54,7 @@ export const auth = {
   purge() {
     this.accessToken = null;
     this.userRole = null;
-    // localStorage.removeItem("activeTab");
+    localStorage.removeItem("activeTab");
   },
 
   isAuthorized() {

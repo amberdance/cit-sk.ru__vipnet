@@ -53,19 +53,22 @@
       @current-change="handleCurrentChange"
     ></el-pagination>
 
-    <Dialog ref="dialog" />
+    <HistoryDetails ref="historyDetails" />
+    <DeleteDetails ref="deleteDetails" />
   </div>
 </template>
 <script>
 import Pagination from "@/mixins/Pagination";
 import TableManage from "@/mixins/TableManage";
-import History from "@/dialogs/application/History";
+import HistoryDetails from "@/dialogs/application/HistoryDetails";
+import DeleteDetails from "@/dialogs/application/DeleteDetails";
 
 export default {
   mixins: [Pagination, TableManage],
 
   components: {
-    Dialog: History
+    HistoryDetails,
+    DeleteDetails
   },
 
   data() {
@@ -81,6 +84,10 @@ export default {
       return this.$store.getters["applist/getList"]("logs");
     },
 
+    applist() {
+      return this.$store.getters["applist/getList"]("items");
+    },
+
     displayedLogs() {
       return this.paginate(this.logs);
     }
@@ -89,26 +96,51 @@ export default {
   async created() {
     this.$isLoading();
     this.$setHeaderTitle("События");
+    this.$isLoading();
 
-    try {
-      await this.$store.dispatch("applist/loadData", {
-        route: "get-logs",
-        key: "logs"
-      });
-    } catch (e) {
-      return;
-    } finally {
-      this.$isLoading(false);
-    }
+    await this.loadLogs();
+    await this.loadApplist();
+
+    this.$isLoading(false);
   },
 
   methods: {
-    openDetailsDialog({ applistId }, column) {
-      if (column.property) this.$refs.dialog.show(applistId);
+    async loadLogs() {
+      try {
+        await this.$store.dispatch("applist/loadData", {
+          route: "get-logs",
+          key: "logs"
+        });
+      } catch (e) {
+        return;
+      }
+    },
+
+    async loadApplist() {
+      try {
+        await this.$store.dispatch("applist/loadData", {
+          route: "get-list",
+          payload: { isActive: false }
+        });
+      } catch (e) {
+        return;
+      }
+    },
+
+    openDetailsDialog(row) {
+      if (row.event == "обновление")
+        this.$refs.historyDetails.show(row.applistId);
+
+      if (row.event == "удаление")
+        this.$refs.deleteDetails.show(
+          this.applist.filter(item => item.id == row.applistId)
+        );
     },
 
     rowClassName({ row }) {
-      if (row.event == "обновление") return "pointer";
+      return row.event == "обновление" || row.event == "удаление"
+        ? "pointer"
+        : null;
     }
   }
 };

@@ -1,9 +1,31 @@
 <template>
   <div>
     <div class="btn_group__wrapper">
-      <el-button size="mini" type="primary" @click="$refs.dialog.show()"
+      <el-button
+        v-if="isFridayToday()"
+        size="mini"
+        type="primary"
+        @click="$refs.dialog.show()"
         >создать заявку</el-button
       >
+
+      <div v-else :class="$style.warning">
+        <div>
+          <i class="el-icon-warning-outline"></i>Уважаемый пользователь!
+          Создание заявок осуществляется по пятницам
+        </div>
+
+        <div
+          v-if="$isAdmin()"
+          style="display:flex;align-items:center;margin:0 0.5rem;"
+        >
+          ,но вы администратор, вам можно
+          <el-button size="mini" type="primary" @click="$refs.dialog.show()"
+            >создать заявку</el-button
+          >
+        </div>
+      </div>
+
       <transition name="el-fade-in">
         <el-button
           v-show="selection.length"
@@ -159,12 +181,12 @@ export default {
   },
 
   async created() {
-    try {
-      this.$isLoading();
-      this.$setHeaderTitle("Заявки");
+    this.$isLoading();
+    this.$setHeaderTitle("Заявки");
 
-      await this.loadRefs();
+    try {
       await this.loadApplist();
+      await this.loadRefs();
     } catch (e) {
       return;
     } finally {
@@ -188,6 +210,10 @@ export default {
       });
     },
 
+    isFridayToday() {
+      return Boolean(new Date().getDay() == 5);
+    },
+
     headerCellStyle(row) {
       if (row.column.property == "receptionDate") return "cursor:pointer;";
     },
@@ -203,5 +229,14 @@ export default {
   padding: 0 !important;
   width: 0;
   border: none;
+}
+.warning {
+  display: flex;
+  align-items: center;
+  color: #a23737;
+  font-weight: bold;
+}
+.warning i {
+  margin-right: 4px;
 }
 </style>

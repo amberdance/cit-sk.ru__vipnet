@@ -1,10 +1,15 @@
 <?php
 
-namespace Citsk\Library;
+namespace Citsk\Models;
 
 use Exception;
+use Firebase\JWT\BeforeValidException;
+use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
+use Firebase\JWT\SignatureInvalidException;
+use InvalidArgumentException;
 use stdClass;
+use UnexpectedValueException;
 
 /**
  * Identity
@@ -14,8 +19,6 @@ use stdClass;
  * @property bool $isAuthorized
  * @property bool $isAdmin
  * @property bool $isManager
- * @property bool $isObserver
- * @property bool $isUserHasPermission
  */
 final class Identity
 {
@@ -54,16 +57,6 @@ final class Identity
      * @var bool
      */
     private $isManager = false;
-
-    /**
-     * @var bool
-     */
-    private $isObserver = false;
-
-    /**
-     * @var bool
-     */
-    private $isUserHasPermission = false;
 
     /**
      * @var int
@@ -119,7 +112,7 @@ final class Identity
         try {
             $JWT = JWT::decode($this->getAuthorizationToken(), JWT['secret_key'], ['HS256']);
             $this->setUserParams($JWT->params);
-        } catch (Exception $e) {
+        } catch (SignatureInvalidException | InvalidArgumentException | UnexpectedValueException | ExpiredException | BeforeValidException $e) {
             $this->isAuthorized = false;
             die(http_response_code(401));
         }
@@ -140,13 +133,12 @@ final class Identity
      */
     private function setUserParams(stdClass $params): void
     {
-        $this->userId              = (int) $params->id;
-        $this->responsibleId       = (int) $params->responsible_id;
-        $this->role                = (int) $params->role;
-        $this->isAdmin             = (int) $params->role === 1 ? true : false;
-        $this->isManager           = (int) $params->role === 2 ? true : false;
-        $this->isAuthorized        = true;
-        $this->isUserHasPermission = $this->isAdmin || $this->isManager;
+        $this->userId        = (int) $params->id;
+        $this->responsibleId = (int) $params->responsible_id;
+        $this->role          = (int) $params->role;
+        $this->isAdmin       = (int) $params->role === 1 ? true : false;
+        $this->isManager     = (int) $params->role === 2 ? true : false;
+        $this->isAuthorized  = true;
     }
 
     /**

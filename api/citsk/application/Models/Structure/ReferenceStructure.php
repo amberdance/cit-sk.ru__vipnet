@@ -2,7 +2,7 @@
 
 namespace Citsk\Models\Structure;
 
-class ReferenceStructure extends Structure
+class ReferenceStructure extends StructureBase
 {
 
     /**
@@ -10,7 +10,7 @@ class ReferenceStructure extends Structure
      *
      * @return void
      */
-    public function theFullList(array $rows): void
+    public function FullMeta(array $rows): void
     {
 
         foreach ($rows as $row) {
@@ -32,13 +32,14 @@ class ReferenceStructure extends Structure
      *
      * @return void
      */
-    public function theShortList(array $rows): void
+    public function ShortMeta(array $rows): void
     {
         foreach ($rows as $row) {
             $this->structure[] = [
                 "id"    => intval($row['id']),
                 "taxId" => intval($row['tax_id']),
                 "label" => $row['label'],
+                'notes' => $row['notes'] ?? [],
             ];
         }
     }
@@ -48,14 +49,15 @@ class ReferenceStructure extends Structure
      *
      * @return void
      */
-    public function theNote(array $rows): void
+    public function TheNote(array $rows): void
     {
         foreach ($rows as $row) {
             $this->structure[] = [
                 "id"      => intval($row['id']),
+                "created" => $row['created'],
                 "refId"   => intval($row['ref_id']),
                 "created" => $row['created'],
-                "note" => $row['content'],
+                "note"    => $row['content'],
             ];
         }
     }

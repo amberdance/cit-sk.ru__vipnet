@@ -4,7 +4,7 @@ namespace Citsk\Models;
 
 use Citsk\Models\Structure\ReferenceStructure;
 
-class Reference extends Common
+class Reference extends CommonModel
 {
 
     /**
@@ -23,11 +23,11 @@ class Reference extends Common
      */
     /**
      * @param int|null $refId
-     * @param bool $isFullList
+     * @param bool $isFullMeta
      *
      * @return ReferenceStructure
      */
-    public function getReferences(?int $refId = null, $isFullList = true): ReferenceStructure
+    public function getReferences(?int $refId = null, $isFullMeta = true): ReferenceStructure
     {
 
         $result = [];
@@ -51,8 +51,7 @@ class Reference extends Common
         }
 
         $references = $this->setDbTable($this->dbTable)
-            ->getList($select, $filter)
-            ->setLimit(50)
+            ->select($select, $filter)
             ->getRows();
 
         foreach ($references as $key => $value) {
@@ -60,9 +59,46 @@ class Reference extends Common
             $result[$key]['notes'] = $this->getReferenceNote($value['id'])->structure;
         }
 
-        $structureType = $isFullList ? "theFullList" : "theShortList";
+        $structureType = $isFullMeta ? "FullMeta" : "ShortMeta";
 
         return new ReferenceStructure($result, $structureType);
+    }
+
+    /**
+     * @param string $keyword
+     *
+     * @return ReferenceStructure
+     */
+    public function searchReference(string $keyword): ReferenceStructure
+    {
+        $fields = [
+            "id",
+            "label",
+            "tax_id",
+            "created"
+        ];
+
+        $filter = [
+            "label" => "%% CONCAT('%', :keyword '%') OR tax_id LIKE CONCAT('%', :keyword, '%')",
+        ];
+
+        $args = [
+            ":keyword" => $keyword,
+        ];
+
+        $result = [];
+
+        $rows = $this->setDbTable("refs")
+            ->setArgs($args)
+            ->select($fields, $filter)
+            ->getRows();
+
+        foreach ($rows as $key => $value) {
+            $result[]              = $value;
+            $result[$key]['notes'] = $this->getReferenceNote($value['id'])->structure;
+        }
+
+        return new ReferenceStructure($result, 'ShortMeta');
     }
 
     /**
@@ -71,9 +107,7 @@ class Reference extends Common
     public function addReference(array $params): int
     {
 
-        return $this->setDbTable($this->dbTable)
-            ->add($this->getTableFields($params))
-            ->getInsertedId();
+        return $this->setDbTable($this->dbTable)->add($this->getTableFields($params))->getInsertedId();
 
     }
 
@@ -133,10 +167,10 @@ class Reference extends Common
         ];
 
         $rows = $this->setDbTable("refs_note")
-            ->getList($select, $filter)
+            ->select($select, $filter)
             ->getRows();
 
-        return new ReferenceStructure($rows, "theNote");
+        return new ReferenceStructure($rows, "TheNote");
     }
 
     /**

@@ -4,8 +4,8 @@ namespace Citsk\Controllers;
 
 use Citsk\Controllers\Controller;
 use Citsk\Interfaces\Controllerable;
-use Citsk\Library\Identity;
-use Citsk\Models\Common;
+use Citsk\Models\CommonModel;
+use Citsk\Models\Identity;
 
 final class CommonController extends Controller implements Controllerable
 {
@@ -25,7 +25,7 @@ final class CommonController extends Controller implements Controllerable
      */
     public function initializeController(): void
     {
-        $this->model = new Common;
+        $this->model = new CommonModel;
         $this->user  = new Identity;
     }
 

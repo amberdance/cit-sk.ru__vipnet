@@ -2,9 +2,14 @@
 
 namespace Citsk\Models\Structure;
 
-class CommonStructure extends Structure
+class CommonStructure extends StructureBase
 {
 
+    /**
+     * @param array $rows
+     *
+     * @return void
+     */
     public function abstractStructure(array $rows): void
     {
 
@@ -21,7 +26,7 @@ class CommonStructure extends Structure
      *
      * @return void
      */
-    public function sessionList(array $rows): void
+    public function SessionList(array $rows): void
     {
 
         foreach ($rows as $row) {

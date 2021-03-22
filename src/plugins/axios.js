@@ -39,10 +39,10 @@ axios.interceptors.response.use(
 
 router.beforeEach((to, from, next) => {
   if (auth.isAuthorized() && to.fullPath == "/auth") return next("/home");
-  if (to.fullPath == "/auth") return next();
   if ("isAdmin" in to.meta && auth.getRole() !== 1)
-    return next(localStorage.getItem("activeTab") ?? "home");
+    return next(localStorage.getItem("activeTab") || "home");
 
+  if ("requiresAuth" in to.meta && !to.meta.requiresAuth) return next();
   if (auth.isAuthorized()) return next();
 
   next("/auth");
@@ -56,11 +56,17 @@ Plugin.install = Vue => {
   Vue.prototype.$HTTPPost = async ({ route, payload }) => {
     const { data } = await axios.post(route, payload);
 
+    if (!data) return [];
+    if ("data" in data) return data.data;
+
     return data;
   };
 
   Vue.prototype.$HTTPGet = async ({ route, payload }) => {
     const { data } = await axios.get(route, { params: payload });
+
+    if (!data) return [];
+    if (!Array.isArray(data)) return [data];
 
     return data;
   };

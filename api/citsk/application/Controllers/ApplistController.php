@@ -4,8 +4,8 @@ namespace Citsk\Controllers;
 
 use Citsk\Interfaces\Controllerable;
 use Citsk\Interfaces\IController;
-use Citsk\Library\Identity;
 use Citsk\Models\Applist;
+use Citsk\Models\Identity;
 
 class ApplistController extends Controller implements Controllerable, IController
 {
@@ -31,8 +31,12 @@ class ApplistController extends Controller implements Controllerable, IControlle
      */
     public function getList(): void
     {
+        if (isset($_POST['isActive'])) {
+            $this->checkAdminAccess();
+        }
 
-        $payload = $this->model->getApplist();
+        $isActiveFilter = isset($_POST['isActive']) ? boolval($_POST['isActive']) : 1;
+        $payload        = $this->model->getApplist(null, $isActiveFilter);
         $this->dataResponse($payload);
     }
 
@@ -63,6 +67,9 @@ class ApplistController extends Controller implements Controllerable, IControlle
      */
     public function add(): void
     {
+        if ((int) date('w') !== 5) {
+            $this->errorResponse(108);
+        }
 
         $this->model->checkIsReceptionDateExists($_POST['signatureTypeId'], $_POST['receptionDate']);
         $id = $this->model->addApplication($this->getBindingParams($_POST));

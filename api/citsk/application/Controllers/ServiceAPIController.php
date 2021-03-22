@@ -3,8 +3,8 @@ namespace Citsk\Controllers;
 
 use Citsk\Controllers\Controller;
 use Citsk\Interfaces\Controllerable;
-use Citsk\Library\Identity;
 use Citsk\Library\ServiceAPI;
+use Citsk\Models\Identity;
 
 class ServiceAPIController extends Controller implements Controllerable
 {
@@ -72,6 +72,9 @@ class ServiceAPIController extends Controller implements Controllerable
 
     }
 
+    /**
+     * @return void
+     */
     public function loadReferences(): void
     {
         set_time_limit(333);
@@ -85,5 +88,7 @@ class ServiceAPIController extends Controller implements Controllerable
         array_walk($data, function ($key) {
             $this->model->addReference($key);
         });
+
+        $this->successResponse();
     }
 }

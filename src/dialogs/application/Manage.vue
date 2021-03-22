@@ -8,7 +8,7 @@
   >
     <el-form
       inline
-      label-width="180px"
+      label-width="200px"
       label-position="left"
       size="medium"
       ref="form"
@@ -37,6 +37,7 @@
             placeholder="инн, наименование"
             :remote-method="remoteSearch"
             :loading="isLoading"
+            @change="onReferenceChange"
           >
             <el-option
               v-for="item in options.references"
@@ -88,15 +89,17 @@
         </el-form-item>
       </div>
 
-      <div class="form_item" v-if="false">
-        <el-form-item label="Комментарий к заявке:" required>
-          <el-input
-            v-model="note"
-            type="textarea"
-            :rows="5"
-            :cols="24"
-          ></el-input>
-        </el-form-item>
+      <div :class="$style.note_wrapper" v-if="referenceNote.length">
+        <div :class="$style.note_label">
+          Заметки организации:
+        </div>
+        <div
+          v-for="item in referenceNote"
+          :key="item.id"
+          style="border-bottom: 1px #dcdfe6 solid;"
+        >
+          <i class="el-icon-date"> </i> {{ item.created }}: {{ item.note }}
+        </div>
       </div>
     </el-form>
 
@@ -121,6 +124,7 @@ export default {
       label: null,
       applicationId: null,
       referenceUpdateId: null,
+      referenceNote: [],
 
       formData: {
         signatureTypeId: 1,
@@ -143,8 +147,17 @@ export default {
       },
 
       pickerOptions: {
-        disabledDate(time) {
-          return time.getDay() == 0 || time.getDay() == 6;
+        disabledDate(date) {
+          const dateNow = new Date();
+          dateNow.getDay();
+
+          return (
+            date.getDay() == 0 ||
+            date.getDay() == 6 ||
+            (date.getDate() < dateNow.getDate() &&
+              dateNow.getMonth() == date.getMonth()) ||
+            date.getFullYear() < dateNow.getFullYear()
+          );
         }
       },
 
@@ -176,10 +189,6 @@ export default {
   },
 
   computed: {
-    references() {
-      return Object.freeze(this.$store.getters["reference/list"]);
-    },
-
     applicationRefsId() {
       return this.$store.getters["applist/getList"]("items").map(
         ({ referenceId }) => referenceId
@@ -196,18 +205,18 @@ export default {
   },
 
   methods: {
-    async show(data) {
-      if (!data) this.purge();
+    async show(payload) {
+      if (!payload) this.purge();
 
       try {
         this.$isLoading();
-        await this.loadSignatureTypes();
-        await this.loadRefs();
 
-        if (data) {
+        await this.loadSignatureTypes();
+
+        if (payload) {
           this.isUpdateDialog = true;
-          this.label = data.label;
-          this.fillUpdateFields(data);
+          this.label = payload.label;
+          this.fillUpdateFields(payload);
         }
         this.isShowed = true;
       } catch (e) {
@@ -225,15 +234,6 @@ export default {
       });
     },
 
-    async loadRefs() {
-      if (this.references.length) return;
-
-      await this.$store.dispatch("reference/loadData", {
-        route: "get-list",
-        payload: { full: false }
-      });
-    },
-
     async onSubmit() {
       await this.$refs.form.validate();
 
@@ -245,8 +245,9 @@ export default {
         );
       }
 
+      this.$isLoading();
+
       try {
-        this.$isLoading();
         this.formData.receptionDate = `${this.formData.date1} ${this.formData.date2}`;
         this.isUpdateDialog ? await this.update() : await this.add();
         this.$refs.form.clearValidate();
@@ -263,6 +264,25 @@ export default {
       }
     },
 
+    async remoteSearch(keyword) {
+      if (keyword !== "") {
+        this.isLoading = true;
+
+        try {
+          this.options.references = await this.$HTTPGet({
+            route: "/reference/search-item",
+            payload: { keyword }
+          });
+        } catch (e) {
+          return;
+        } finally {
+          this.isLoading = false;
+        }
+      } else {
+        this.options.references = [];
+      }
+    },
+
     async add() {
       await this.$store.dispatch("applist/loadData", {
         route: "add",
@@ -276,7 +296,7 @@ export default {
     },
 
     async update() {
-      const selectedReference = this.references.filter(
+      const selectedReference = this.options.references.filter(
         item => item.id == this.formData.referenceId
       )[0];
 
@@ -334,24 +354,10 @@ export default {
       if (this.formData.date2.indexOf("13") > -1) return Promise.reject(); //lunch time
     },
 
-    remoteSearch(query) {
-      if (query !== "") {
-        this.isLoading = true;
-
-        setTimeout(() => {
-          this.isLoading = false;
-          this.options.references = this.references.filter(item => {
-            if (item.label == null) return;
-
-            return (
-              item.label.indexOf(query.toLowerCase()) > -1 ||
-              String(item.taxId).indexOf(query.toLowerCase()) > -1
-            );
-          });
-        }, 100);
-      } else {
-        this.options.references = [];
-      }
+    onReferenceChange(itemId) {
+      this.referenceNote = this.options.references.filter(
+        ({ id }) => id == itemId
+      )[0].notes;
     },
 
     purge() {
@@ -359,6 +365,7 @@ export default {
       this.formData.signatureTypeId = 1;
       this.isUpdateDialog = false;
       this.options.references = [];
+      this.referenceNote = [];
     },
 
     hide() {
@@ -376,5 +383,24 @@ export default {
   color: #8492a6;
   font-size: 13px;
   margin-left: 1rem;
+}
+.note_wrapper {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+.note_wrapper i {
+  margin-right: 5px;
+  color: #cc4444;
+}
+.note_wrapper div {
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.note_label {
+  color: #cc4444;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 1rem;
 }
 </style>

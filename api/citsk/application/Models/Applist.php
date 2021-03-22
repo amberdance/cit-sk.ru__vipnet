@@ -2,10 +2,9 @@
 
 namespace Citsk\Models;
 
-use Citsk\Exceptions\DataBaseException;
 use Citsk\Models\Structure\ApplistStructure;
 
-class Applist extends Common
+class Applist extends CommonModel
 {
 
     /**
@@ -27,6 +26,7 @@ class Applist extends Common
      */
     public function getApplist(?int $id = null, $isActive = 1): ApplistStructure
     {
+
         $select = [
             "applist.id",
             "applist.created",
@@ -60,11 +60,11 @@ class Applist extends Common
         }
 
         $rows = $this->setDbTable($this->dbTable)
-            ->getList($select, $filter, $join)
+            ->select($select, $filter, $join)
             ->setSorting($sort)
             ->getRows();
 
-        return new ApplistStructure($rows, 'theApplist');
+        return new ApplistStructure($rows, 'Applist');
     }
 
     /**
@@ -73,9 +73,7 @@ class Applist extends Common
     public function addApplication(array $params): int
     {
 
-        return $this->setDbTable($this->dbTable)
-            ->add($this->getBindingParams($params))
-            ->getInsertedId();
+        return $this->setDbTable($this->dbTable)->add($this->getBindingParams($params))->getInsertedId();
     }
 
     /**
@@ -100,13 +98,8 @@ class Applist extends Common
             $filter['id'] = "!= $id";
         }
 
-        $this->setDbTable("applist");
+        $this->setDbTable("applist")->select($select, $filter)->getRowCount();
 
-        $isExistsDuplicate = $this->getList($select, $filter)->getRowCount();
-
-        if (boolval($isExistsDuplicate)) {
-            throw new DataBaseException('Duplicate entry', 102);
-        }
     }
 
     /**
@@ -143,7 +136,7 @@ class Applist extends Common
         $incomingValues['reception_date'] .= ":00";
 
         $oldValues = $this->setDbTable("applist")
-            ->getList($select, $filter)
+            ->select($select, $filter)
             ->getRows();
 
         unset($incomingValues['id']);
@@ -198,9 +191,7 @@ class Applist extends Common
         $insert['old_value'] = "'" . serialize($insert['old_value']) . "'";
         $insert['new_value'] = "'" . serialize($insert['new_value']) . "'";
 
-        $this->setDbTable("applist_history");
-        $this->delete(null, $filter);
-        $this->skipArgs()->add($insert);
+        $this->setDbTable("applist_history")->skipArgs()->delete($filter)->add($insert);
     }
 
     /**
@@ -219,7 +210,7 @@ class Applist extends Common
         }
 
         $rows = $this->setDbTable($this->dbTable)
-            ->getList(null, $filter)
+            ->select(null, $filter)
             ->getRows();
 
         $rows[0]['applist_id'] = intval($rows[0]['id']);
@@ -247,7 +238,7 @@ class Applist extends Common
         $result = [];
 
         $rows = $this->setDbTable("applist_history")
-            ->getList($select, $filter)
+            ->select($select, $filter)
             ->getRows()[0];
 
         $rows['old_value'] = unserialize($rows['old_value']);
@@ -300,11 +291,11 @@ class Applist extends Common
         ];
 
         $rows = $this->setDbTable("applist_log log")
-            ->getList($select, null, $join)
+            ->select($select, null, $join)
             ->setSorting($sort)
             ->getRows();
 
-        return new ApplistStructure($rows, "theLogList");
+        return new ApplistStructure($rows, "LogList");
     }
 
     /**
@@ -329,7 +320,7 @@ class Applist extends Common
             "applist_history history" => "history.applist_id",
         ];
 
-        $this->setDbTable("applist list")->delete($fields, $filter, $join);
+        $this->setDbTable("applist list")->deleteWithJoin($fields, $filter, $join);
     }
 
     /**

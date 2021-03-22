@@ -79,7 +79,7 @@ export default {
 
       try {
         await this.$auth.login(this.formData);
-        this.$router.push(localStorage.getItem("activeTab"));
+        this.$router.push("/home");
       } catch (e) {
         if (e === "Bad request") return this.$onError();
 

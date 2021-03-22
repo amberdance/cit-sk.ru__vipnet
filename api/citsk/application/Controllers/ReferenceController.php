@@ -4,7 +4,7 @@ namespace Citsk\Controllers;
 
 use Citsk\Interfaces\Controllerable;
 use Citsk\Interfaces\IController;
-use Citsk\Library\Identity;
+use Citsk\Models\Identity;
 use Citsk\Models\Reference;
 
 class ReferenceController extends Controller implements Controllerable, IController
@@ -34,6 +34,15 @@ class ReferenceController extends Controller implements Controllerable, IControl
         ? $this->model->getReferences()
         : $this->model->getReferences(null, false);
 
+        $this->dataResponse($payload);
+    }
+
+    /**
+     * @return void
+     */
+    public function searchItem(): void
+    {
+        $payload = $this->model->searchReference($_GET['keyword']);
         $this->dataResponse($payload);
     }
 

@@ -15,16 +15,20 @@
       </transition>
     </div>
 
-    <div v-if="isNotesExists" :class="$style.legend_wrapper">
+    <div
+      v-if="isNotesExists"
+      :class="$style.legend_wrapper"
+      @click="isNoteFilter = !isNoteFilter"
+    >
       <span :class="[$style.legend_square, 'highlighted-row']"></span
       ><span :class="$style.lengend_title"> - имеются заметки</span>
     </div>
     <el-table
       height="79vh"
       class="table_wrapper"
-      ref="dataTable"
+      ref="tableData"
       border
-      :data="dataTable"
+      :data="tableData"
       :default-sort="{ prop: 'label', order: 'ascending' }"
       :row-class-name="rowClassName"
       @selection-change="handleSelectionChange"
@@ -101,26 +105,34 @@ export default {
   data() {
     return {
       entity: "reference",
-      isDetailDialogShowed: false
+      isDetailDialogShowed: false,
+      isNoteFilter: false
     };
   },
 
   computed: {
-    refs() {
+    initialRefs() {
       return this.$store.getters["reference/list"];
     },
 
-    displayedRefs() {
+    tableData() {
       return this.paginate(this.refs);
     },
 
-    dataTable() {
-      return this.displayedRefs.filter(item => {
-        return (
-          !this.search ||
-          item.label.toLowerCase().includes(this.search.toLowerCase())
-        );
-      });
+    refs() {
+      return this.initialRefs
+        .filter(
+          ({ notes }) =>
+            !this.isNoteFilter || (this.isNoteFilter && notes.length)
+        )
+        .filter(item => {
+          return (
+            !this.search ||
+            item.label.toLowerCase().includes(this.search.toLowerCase()) ||
+            item.taxId.toLowerCase().includes(this.search.toLowerCase()) ||
+            item.governmentId.toLowerCase().includes(this.search.toLowerCase)
+          );
+        });
     },
 
     isAdmin() {
@@ -177,7 +189,6 @@ export default {
   margin-right: 1rem;
   margin-left: 3px;
   border: 1px #05abb354 solid;
-  cursor: default;
 }
 .legend_title {
   color: black;

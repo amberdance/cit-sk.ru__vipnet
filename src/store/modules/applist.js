@@ -23,9 +23,9 @@ export default {
     ...commonActions,
 
     async loadData({ commit }, { route, key = "items", payload }) {
-      commit("clear", key);
-
       route = `/applist/${route}`;
+
+      if (route != "/applist/add") commit("clear", key);
 
       const responseData = await dispatch.HTTPPost({ route, payload });
 

@@ -2,7 +2,7 @@
 
 namespace Citsk\Models\Structure;
 
-class ApplistStructure extends Structure
+class ApplistStructure extends StructureBase
 {
 
     /**
@@ -10,7 +10,7 @@ class ApplistStructure extends Structure
      *
      * @return void
      */
-    public function theApplist(array $rows): void
+    public function Applist(array $rows): void
     {
         foreach ($rows as $row) {
             $this->structure[] = [
@@ -32,7 +32,7 @@ class ApplistStructure extends Structure
      *
      * @return void
      */
-    public function theLogList(array $rows): void
+    public function LogList(array $rows): void
     {
         foreach ($rows as $row) {
             $this->structure[] = [
@@ -43,21 +43,6 @@ class ApplistStructure extends Structure
                 "name"       => $row['name'],
                 "surname"    => $row['surname'],
                 "patronymic" => $row['patronymic'],
-            ];
-        }
-    }
-
-    /**
-     * @param array $rows
-     *
-     * @return void
-     */
-    public function history(array $rows): void
-    {
-        foreach ($rows as $row) {
-            $this->structure[] = [
-                "oldData" => $row['old_value'],
-                "newData" => $row['new_value'],
             ];
         }
     }

@@ -44,12 +44,19 @@ final class PDOBase
 
             return $isReturnPDO ? $instance : $statement;
         } catch (PDOException $e) {
+            if (strripos($e->getMessage(), "only_full_group_by")) {
+                $this->executeQuery("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
+                $statement->execute($args);
+
+                return $isReturnPDO ? $instance : $statement;
+            }
+
             if (strripos($e->getMessage(), 'Duplicate entry')) {
                 throw new DataBaseException('Duplicate entry', 102);
             }
 
             if (strripos($e->getMessage(), 'Data too long')) {
-                throw new DataBaseException('Data too long', 107);
+                throw new DataBaseException('Data too long', 111);
             }
 
             throw new DataBaseException($e->getMessage());
@@ -140,7 +147,6 @@ final class PDOBase
             return $statement
             ? $statement->fetchColumn()
             : $this->getInstance()->query($query)->fetchColumn();
-
         } catch (PDOException $e) {
             throw new DataBaseException($e->getMessage());
         }

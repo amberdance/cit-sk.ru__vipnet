@@ -3,7 +3,7 @@ namespace Citsk\Models\Structure;
 
 use Exception;
 
-class Structure
+class StructureBase
 {
 
     /**
@@ -12,31 +12,36 @@ class Structure
     public $structure = [];
 
     /**
+     * @param array|null $data
      * @param string|null $label
-     * @param array $data
+     * @param null $params
      */
-    public function __construct(array $data, string $label = null)
+    public function __construct(?array $data, string $label = null, $params = null)
     {
+        if (!$data) {
+            return [];
+        }
 
         $methodName = $this->getMethodName($label);
-        $this->handleStructure($methodName, $data);
+        $this->handleStructure($methodName, $data, $params);
 
     }
 
     /**
-     * @param string $label
+     * @param string $methodName
      * @param array $data
+     * @param mixed $params
      *
-     * @return void
+     * @return array
      */
-    private function handleStructure(string $methodName, array $data): array
+    private function handleStructure(string $methodName, array $data, $params): array
     {
 
         if (!$data) {
             $this->structure = [];
         }
 
-        call_user_func([$this, $methodName], $data);
+        call_user_func([$this, $methodName], $data, $params);
 
         return $this->structure;
 
@@ -57,7 +62,7 @@ class Structure
         }
 
         if (!$label) {
-            return 'abstractStructure';
+            return 'AbstractStructure';
         }
 
         global $USER;

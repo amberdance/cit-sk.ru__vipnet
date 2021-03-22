@@ -2,12 +2,10 @@
 
 namespace Citsk\Models;
 
-use Citsk\Library\Identity;
-use Citsk\Library\MySQLHelper;
 use Citsk\Library\Shared;
 use stdClass;
 
-final class User extends MySQLHelper
+final class User extends DatabaseModel
 {
 
     /**
@@ -18,6 +16,7 @@ final class User extends MySQLHelper
     public function __construct()
     {
         $this->identity = new Identity;
+        parent::__construct();
     }
 
     /**
@@ -39,7 +38,7 @@ final class User extends MySQLHelper
         ];
 
         $userData = $this->setDbTable("users")
-            ->getList($select, $filter)
+            ->select($select, $filter)
             ->getRow(5);
 
         return $userData;
@@ -58,9 +57,7 @@ final class User extends MySQLHelper
             "ip_address" => "'$ipAddress'",
         ];
 
-        $this->setDbTable("connections")
-            ->skipArgs()
-            ->add($fields);
+        $this->setDbTable("connections")->skipArgs()->add($fields);
     }
 
     public function unsetConnection(): void
@@ -70,29 +67,6 @@ final class User extends MySQLHelper
             $this->identity->userId,
         ];
 
-        $this->setDbTable("connections")->delete(null, $filter);
+        $this->setDbTable("connections")->delete($filter);
     }
-
-    /**
-     * @param int $responsibleId
-     *
-     * @return void
-     */
-    public function addUserByResponsibleId(int $responsibleId): void
-    {
-        $insert = [
-            "login"          => ":login",
-            "password"       => ":password",
-            "role"           => ":role",
-            "responsible_id" => ":responsibleId",
-        ];
-
-        $args = [
-            ":login"         => null,
-            ":password"      => null,
-            ":role"          => null,
-            ":responsibleId" => null,
-        ];
-    }
-
 }

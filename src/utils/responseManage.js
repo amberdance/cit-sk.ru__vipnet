@@ -91,6 +91,14 @@ const errorCollection = {
         error: "Data too long",
         code: 107
       });
+    },
+
+    108: () => {
+      onWarning("Создание заявок осуществляется по пятницам");
+      Promise.reject({
+        error: "Application creating allowed on friday only",
+        code: 108
+      });
     }
   }
 };

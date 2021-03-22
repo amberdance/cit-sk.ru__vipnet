@@ -37,13 +37,11 @@ class ServiceAPI extends MySQLHelper
     {
 
         $insert = [
-            "reg_id"        => trim($data[0], "."),
-            "accept_date"   => date('Y-m-d H:i:s', strtotime($data[1])),
-            "label"         => $data[2],
-            "city"          => $data[3],
-            "district"      => $data[4],
-            "tax_id"        => $data[5],
-            "government_id" => $data[6],
+            "label"         => $data[0],
+            "city"          => $data[1],
+            "district"      => $data[2],
+            "tax_id"        => $data[3],
+            "government_id" => $data[4],
         ];
 
         $this->setDbTable("refs")->add($insert);
