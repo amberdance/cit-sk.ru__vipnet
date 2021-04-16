@@ -17,13 +17,11 @@ header {
 }
 .table_wrapper th {
   text-transform: uppercase;
-  font-weight: normal;
   text-align: center;
-  background-color: #05abb3;
+  background-color: #14b590;
   color: white;
   padding: 0.7rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: normal;
 }
 .pagination_wrapper {
   padding: 2rem 0;
@@ -39,8 +37,6 @@ header {
   justify-content: center;
   padding: 0.3rem 0;
   margin: 0.3rem 0;
-  height: 2.1875rem;
-  max-height: 2.1875rem;
 }
 .btn_group__wrapper button {
   margin: 0 0.0625rem !important;
@@ -72,6 +68,7 @@ header {
   color: black;
 }
 .el-dialog__header {
+  text-transform: uppercase;
   border-bottom: 0.0625rem #8080802b solid;
 }
 .el-dialog__title {

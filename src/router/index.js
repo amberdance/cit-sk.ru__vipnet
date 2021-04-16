@@ -5,7 +5,7 @@ Vue.use(VueRouter);
 
 const routes = [
   { path: "/", redirect: "/home" },
-  { path: "*", component: () => import("@/components/NotFound") },
+  { path: "*", component: () => import("@/components/404/Index") },
 
   {
     path: "/auth",
@@ -45,12 +45,6 @@ const routes = [
         path: "/sessions",
         meta: { isAdmin: true },
         component: () => import("@/components/Sessions")
-      },
-
-      {
-        path: "/service",
-        meta: { isAdmin: true },
-        component: () => import("@/components/Service")
       }
     ]
   }

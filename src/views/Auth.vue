@@ -1,75 +1,84 @@
 <template>
-  <el-container>
-    <el-header>
-      <Header />
-    </el-header>
+  <div>
+    <div :class="$style.overlay"></div>
 
     <div :class="$style.wrapper">
-      <el-form :model="formData" :rules="rules" ref="form" :class="$style.form">
-        <el-form-item label="Логин" prop="login"
-          ><el-input
-            v-model="formData.login"
-            size="small"
-            prefix-icon="el-icon-user"
-          ></el-input
-        ></el-form-item>
+      <img :class="$style.logo" src="../assets/citsk_logo.png" />
 
-        <el-form-item label="Пароль" prop="password"
-          ><el-input
-            v-model="formData.password"
-            size="small"
+      <div :class="$style.title">
+        Заявки на получение электронно-цифровых подписей
+      </div>
+
+      <el-form ref="form" :model="formData" :rules="formRules">
+        <el-form-item prop="login">
+          <el-input
+            v-model="formData.login"
+            placeholder="логин"
+            autofocus
+            prefix-icon="el-icon-user"
+          />
+        </el-form-item>
+
+        <el-form-item prop="password">
+          <el-input
             type="password"
+            v-model="formData.password"
+            placeholder="пароль"
             prefix-icon="el-icon-lock"
             show-password
-          ></el-input
-        ></el-form-item>
+          />
+        </el-form-item>
 
-        <div>
+        <div :class="$style.btn_wrapper">
           <el-button
+            native-type="submit"
             size="small"
-            style="width: 100%"
             :loading="isLoading"
             @click="authorize"
             >войти</el-button
           >
         </div>
       </el-form>
+
+      <div :class="$style.developer">
+        <div>2020 - {{ new Date().getFullYear() }}</div>
+        <div>ГКУ СК "Краевой центр информтехнологий"</div>
+      </div>
     </div>
-  </el-container>
+  </div>
 </template>
+
 <script>
-import Header from "@/components/Header";
-
 export default {
-  components: { Header },
-
   data() {
     return {
       isLoading: false,
 
       formData: {
-        login: null,
-        password: null
+        login: "",
+        password: ""
       },
 
-      rules: {
-        login: {
-          required: true,
-          trigger: "blur",
-          message: "введите логин"
-        },
+      formRules: {
+        login: [
+          {
+            required: true,
+            message: " "
+          }
+        ],
 
-        password: {
-          required: true,
-          trigger: "blur",
-          message: "введите пароль"
-        }
+        password: [
+          {
+            required: true,
+            message: " "
+          }
+        ]
       }
     };
   },
 
   created() {
-    this.$setHeaderTitle("Авторизация");
+    if (this.$isAuthorized()) this.$router.push("/home");
   },
 
   methods: {
@@ -81,17 +90,16 @@ export default {
         await this.$auth.login(this.formData);
         this.$router.push("/home");
       } catch (e) {
-        if (e === "Bad request") return this.$onError();
+        if (e.config.response.status == 401)
+          return this.$onError(
+            "Не удалось авторизоваться под указанными учетными данными",
+            4000
+          );
 
-        if (e.config.response.status === 401) {
-          return this.$onError("Все - таки что - то неверно");
-        }
-
-        if (e.config.response.status === 403) {
+        if (e.config.response.status == 403)
           return this.$onError("Доступ запрещен");
-        }
 
-        return this.$onError();
+        this.$onError();
       } finally {
         this.isLoading = false;
       }
@@ -99,17 +107,69 @@ export default {
   }
 };
 </script>
+
 <style module>
-.form {
-  padding: 2rem;
-  background-color: #f9f9f9ba;
+.overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #000401c2;
 }
 .wrapper {
+  color: white;
+  background: url("../assets/background.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  align-items: center;
+  flex-direction: column;
+}
+.title {
+  text-align: center;
+  border-bottom: 1px white solid;
+  padding-bottom: 1rem;
+  text-transform: uppercase;
+  font-size: 18px;
+  padding: 1rem 0;
+}
+.title,
+.developer {
+  width: 350px;
+}
+.title,
+.developer,
+form {
+  z-index: 999;
+}
+form {
+  padding: 1rem;
+}
+.btn_wrapper {
+  display: flex;
+  justify-content: center;
+}
+.btn_wrapper button {
+  width: 100%;
+}
+.developer {
+  border-top: 1px white solid;
+  padding-top: 1rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 94vh;
-  background-color: #eaeaea;
+  align-items: flex-end;
+  font-size: 14px;
+}
+.overlay_logo {
+  background-color: #525252c2;
+}
+.overlay_logo,
+.logo {
+  position: absolute;
+  width: 50%;
+  top: 15%;
+  left: 25%;
 }
 </style>

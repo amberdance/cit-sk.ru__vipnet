@@ -2,7 +2,7 @@
 
 namespace Citsk\Library;
 
-use Citsk\Exceptions\DataBaseException;
+use Citsk\Exceptions\DatabaseException;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -23,7 +23,7 @@ final class PDOBase
 
             return $instance;
         } catch (PDOException $e) {
-            throw new DataBaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage());
         }
     }
 
@@ -52,14 +52,14 @@ final class PDOBase
             }
 
             if (strripos($e->getMessage(), 'Duplicate entry')) {
-                throw new DataBaseException('Duplicate entry', 102);
+                throw new DatabaseException('Duplicate entry', 102);
             }
 
             if (strripos($e->getMessage(), 'Data too long')) {
-                throw new DataBaseException('Data too long', 111);
+                throw new DatabaseException('Data too long', 111);
             }
 
-            throw new DataBaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage());
         }
     }
 
@@ -89,10 +89,10 @@ final class PDOBase
 
         } catch (PDOException $e) {
             if (strripos($e->getMessage(), 'Duplicate entry')) {
-                throw new DataBaseException('Duplicate entry', 102);
+                throw new DatabaseException('Duplicate entry', 102);
             }
 
-            throw new DataBaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage());
         }
     }
 
@@ -110,7 +110,7 @@ final class PDOBase
             ? $statement->fetch($fetchType)
             : $this->getInstance()->query($query)->fetch($fetchType);
         } catch (PDOException $e) {
-            throw new DataBaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage());
         }
     }
 
@@ -129,7 +129,7 @@ final class PDOBase
             ? $statement->fetchAll($fetchType)
             : $this->getInstance()->query($query)->fetchAll($fetchType);
         } catch (PDOException $e) {
-            throw new DataBaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage());
         }
 
     }
@@ -148,7 +148,7 @@ final class PDOBase
             ? $statement->fetchColumn()
             : $this->getInstance()->query($query)->fetchColumn();
         } catch (PDOException $e) {
-            throw new DataBaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage());
         }
     }
 
@@ -173,7 +173,7 @@ final class PDOBase
 
             return $statement->rowCount();
         } catch (PDOException $e) {
-            throw new DataBaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage());
         }
 
     }

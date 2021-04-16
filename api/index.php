@@ -1,3 +1,2 @@
 <?php
-
-require_once $_SERVER['DOCUMENT_ROOT'] . "/citsk/application/bootstrap.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/api/citsk/application/bootstrap.php";

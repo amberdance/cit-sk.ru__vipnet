@@ -2,6 +2,7 @@
 
 namespace Citsk\Models;
 
+use Citsk\Exceptions\DatabaseException;
 use Citsk\Models\Structure\ApplistStructure;
 
 class Applist extends CommonModel
@@ -31,6 +32,7 @@ class Applist extends CommonModel
             "applist.id",
             "applist.created",
             "applist.person_count",
+            "applist.note",
             "DATE_FORMAT(applist.reception_date, '%Y-%m-%d %H:%i')" => "reception_date",
             "signature.label"                                       => "signature_label",
             "signature.id"                                          => "signature_id",
@@ -98,8 +100,11 @@ class Applist extends CommonModel
             $filter['id'] = "!= $id";
         }
 
-        $this->setDbTable("applist")->select($select, $filter)->getRowCount();
+        $isExistsDuplicate = $this->setDbTable("applist")->select($select, $filter)->getRowCount();
 
+        if (boolval($isExistsDuplicate)) {
+            throw new DatabaseException('Duplicate entry', 102);
+        }
     }
 
     /**
@@ -351,12 +356,16 @@ class Applist extends CommonModel
      */
     private function getBindingParams($params): array
     {
-
-        return [
+        $result = [
             "person_count"      => $params['person_count'],
             "reception_date"    => $params['reception_date'],
             "signature_type_id" => $params["signature_type_id"],
-            "reference_id"      => $params['reference_id'],
         ];
+
+        if ($params['reference_id']) {
+            $params['reference_id'];
+        }
+
+        return $result;
     }
 }

@@ -65,10 +65,18 @@ class DatabaseModel
      */
     private $isSkipArgs = false;
 
-    public function __construct()
-    {
+    /**
+     * @var string
+     */
+    private $dataBaseProviider;
 
-        $this->dbConnection = new PDOBase;
+    /**
+     * @param string $dataBaseProviider
+     */
+    public function __construct(string $dataBaseProviider = 'mysql')
+    {
+        $this->dataBaseProviider = $dataBaseProviider;
+        $this->dbConnection      = new PDOBase($this->dataBaseProviider);
     }
 
     /**
@@ -173,6 +181,86 @@ class DatabaseModel
     }
 
     /**
+     * @return void
+     */
+    public function startTransaction(): void
+    {
+        $this->isTransactionBegin = true;
+    }
+
+    /**
+     * @return void
+     *
+     * @throws DataBaseException
+     */
+    public function executeTransaction(): void
+    {
+
+        try {
+            $this->PDOInstance = $this->getConnection()->getInstance();
+            $this->PDOInstance->beginTransaction();
+
+            foreach ($this->transactions as $transaction) {
+                $statement = $this->PDOInstance->prepare($transaction['query']);
+                $statement->execute($transaction['args']);
+            }
+
+            $this->PDOInstance->commit();
+
+        } catch (Exception $e) {
+            $this->PDOInstance->rollBack();
+
+            throw new DataBaseException($e->getMessage());
+        }
+    }
+
+    /**
+     * @param array $updateFields
+     * @param array $filter
+     * @param array|null $join
+     *
+     * @return DatabaseModel
+     */
+    public function update(array $updateFields, array $filter = [], ?array $join = null): DatabaseModel
+    {
+        $joinString = null;
+
+        if ($join) {
+            $joinString = $this->setJoinFieldsIfExists($join, true);
+        }
+
+        $this->setUpdateFields($updateFields, $joinString)->setFilterFieldsIfExists($filter);
+
+        if (!$this->isSkipArgs) {
+            $this->setArgs(array_merge($updateFields, $filter));
+        }
+
+        if ($this->isTransactionBegin) {
+            $this->transactions[] = [
+                'query' => $this->queryString,
+                'args'  => $this->args,
+            ];
+
+            return $this;
+        }
+
+        $this->runQuery();
+
+        return $this;
+
+    }
+
+    /**
+     * @return DatabaseModel
+     */
+    public function skipArgs(): DatabaseModel
+    {
+        $this->isSkipArgs = true;
+
+        return $this;
+    }
+
+    /**
      * @return string|null
      */
     protected function getQuery(): ?string
@@ -214,20 +302,10 @@ class DatabaseModel
                 $this->skipArgs();
                 $this->args[$key] = $value;
             } else {
-                $this->args[$this->getPlaceHolder($key)] = $value;
-                // $this->args[$this->getPlaceHolder($key)] = trim(preg_replace("/[^\w\s.,-:\/]/u", "", $value));
+                // $this->args[$this->getPlaceHolder($key)] = $value;
+                $this->args[$this->getPlaceHolder($key)] = trim(preg_replace("/[[!=<=>=%%!()()!!<>]/", "", $value));
             }
         }
-
-        return $this;
-    }
-
-    /**
-     * @return DatabaseModel
-     */
-    protected function skipArgs(): DatabaseModel
-    {
-        $this->isSkipArgs = true;
 
         return $this;
     }
@@ -326,43 +404,6 @@ class DatabaseModel
     }
 
     /**
-     * @param array $updateFields
-     * @param array $filter
-     * @param array|null $join
-     *
-     * @return DatabaseModel
-     */
-    protected function update(array $updateFields, array $filter = [], ?array $join = null): DatabaseModel
-    {
-        $joinString = null;
-
-        if ($join) {
-            $joinString = $this->setJoinFieldsIfExists($join, true);
-        }
-
-        $this->setUpdateFields($updateFields, $joinString)
-            ->setFilterFieldsIfExists($filter);
-
-        if (!$this->isSkipArgs) {
-            $this->setArgs(array_merge($updateFields, $filter));
-        }
-
-        if ($this->isTransactionBegin) {
-            $this->transactions[] = [
-                'query' => $this->queryString,
-                'args'  => $this->args,
-            ];
-
-            return $this;
-        }
-
-        $this->runQuery();
-
-        return $this;
-
-    }
-
-    /**
      * @param array|null $filter
      *
      * @return DatabaseModel
@@ -428,40 +469,6 @@ class DatabaseModel
     /**
      * @return void
      */
-    protected function startTransaction(): void
-    {
-        $this->isTransactionBegin = true;
-    }
-
-    /**
-     * @return void
-     *
-     * @throws DataBaseException
-     */
-    protected function executeTransaction(): void
-    {
-
-        try {
-            $this->PDOInstance = $this->getConnection()->getInstance();
-            $this->PDOInstance->beginTransaction();
-
-            foreach ($this->transactions as $transaction) {
-                $statement = $this->PDOInstance->prepare($transaction['query']);
-                $statement->execute($transaction['args']);
-            }
-
-            $this->PDOInstance->commit();
-
-        } catch (Exception $e) {
-            $this->PDOInstance->rollBack();
-
-            throw new DataBaseException($e->getMessage());
-        }
-    }
-
-    /**
-     * @return void
-     */
     protected function closeConnection(): void
     {
         $this->dbConnection       = null;
@@ -477,7 +484,7 @@ class DatabaseModel
     private function getConnection()
     {
 
-        return $this->dbConnection ?? new PDOBase();
+        return $this->dbConnection ?? new PDOBase($this->dataBaseProviider);
 
     }
 
@@ -596,11 +603,9 @@ class DatabaseModel
         foreach ($filter as $key => $field) {
             if (preg_match("/^[^\w\s:']+/", $field, $match)) {
                 $comparsion = $this->getFilterComparsion($match[0]);
-
-                $field = ($match[0] == "()")
+                $field      = ($match[0] == "()")
                 ? str_replace($match[0], null, "($field)")
                 : str_replace($match[0], null, $field);
-
             } else {
                 $comparsion = "=";
             }

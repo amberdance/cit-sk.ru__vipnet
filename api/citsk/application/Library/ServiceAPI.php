@@ -2,7 +2,7 @@
 
 namespace Citsk\Library;
 
-use Citsk\Exceptions\DataBaseException;
+use Citsk\Exceptions\DatabaseException;
 
 class ServiceAPI extends MySQLHelper
 {
@@ -73,7 +73,7 @@ class ServiceAPI extends MySQLHelper
             ->getInsertedId();
 
         if (!$userId) {
-            throw new DataBaseException("Create user failed");
+            throw new DatabaseException("Create user failed");
         }
 
         $accessList = "login: {$params['login']}, password: $passwordHash \n";
@@ -94,7 +94,7 @@ class ServiceAPI extends MySQLHelper
             ->getInsertedId();
 
         if (!$responsibleId) {
-            throw new DataBaseException("Create responsible failed");
+            throw new DatabaseException("Create responsible failed");
         }
 
         return $responsibleId;

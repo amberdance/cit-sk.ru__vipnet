@@ -11,7 +11,7 @@ final class CommonController extends Controller implements Controllerable
 {
 
     /**
-     * @var Common
+     * @var CommonModel
      */
     protected $model;
 
@@ -58,5 +58,38 @@ final class CommonController extends Controller implements Controllerable
         $this->checkAdminAccess();
         $this->model->truncateTable("connections");
         $this->successResponse();
+    }
+
+    /**
+     * @return void
+     */
+    public function getChoice(): void
+    {
+        $this->model->setDbTable('notFoundComponent');
+        $this->model->skipArgs()->update(['visited' => 'visited + 1']);
+        $payload = $this->model->select(['stayed', 'leaved', 'visited'])->getRows();
+        $this->dataResponse($payload[0]);
+    }
+
+    /**
+     * @return void
+     */
+    public function setChoice(): void
+    {
+        $field = null;
+
+        if (isset($_GET['stayed'])) {
+            $field = 'stayed';
+        }
+
+        if (isset($_GET['leaved'])) {
+            $field = 'leaved';
+        }
+
+        $params = [
+            $field => "$field + 1",
+        ];
+
+        $this->model->skipArgs()->setDbTable("notFoundComponent")->update($params);
     }
 }

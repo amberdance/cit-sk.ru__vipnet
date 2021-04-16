@@ -1,7 +1,7 @@
 <?php
 namespace Citsk\Controllers;
 
-use Citsk\Exceptions\DataBaseException;
+use Citsk\Exceptions\DatabaseException;
 use Citsk\Library\Shared;
 use Exception;
 
@@ -23,7 +23,7 @@ class Controller
 
             try {
                 return call_user_func([$this, $action]);
-            } catch (DataBaseException | Exception $e) {
+            } catch (DatabaseException | Exception $e) {
 
                 DB_DEBUG
                 ? $this->errorResponse($e->getCode(), $e->getMessage())
@@ -38,7 +38,7 @@ class Controller
             try {
                 $data = call_user_func([$this->model, $action]);
                 $this->dataResponse($data);
-            } catch (DataBaseException | Exception $e) {
+            } catch (DatabaseException | Exception $e) {
 
                 DB_DEBUG
                 ? $this->errorResponse($e->getCode(), $e->getMessage())

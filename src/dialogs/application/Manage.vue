@@ -10,7 +10,7 @@
       inline
       label-width="200px"
       label-position="left"
-      size="medium"
+      size="small"
       ref="form"
       :model="formData"
       :rules="rules"
@@ -21,7 +21,7 @@
             size="small"
             v-model="formData.personCount"
             :min="1"
-            :max="10"
+            :max="99"
             style="width:217px; !important"
           ></el-input-number>
         </el-form-item>
@@ -34,6 +34,7 @@
             filterable
             clearable
             remote
+            size="small"
             placeholder="инн, наименование"
             :remote-method="remoteSearch"
             :loading="isLoading"
@@ -46,7 +47,7 @@
               :label="item.label"
             >
               <span style="float: left">{{ item.label }}</span>
-              <span :class="$style.taxId">{{ item.taxId }}</span>
+              <span :class="$style.tax_id">{{ item.tax_id }}</span>
             </el-option>
           </el-select>
         </el-form-item>
@@ -54,7 +55,7 @@
 
       <div class="form_item">
         <el-form-item label="Тип ЭП:" required>
-          <el-select v-model="formData.signatureTypeId">
+          <el-select v-model="formData.signatureTypeId" size="small">
             <el-option
               v-for="item in options.signatureTypes"
               :key="item.id"
@@ -71,6 +72,7 @@
             placeholder="выберите дату"
             v-model="formData.date1"
             type="date"
+            size="small"
             :picker-options="pickerOptions"
             value-format="yyyy-MM-dd"
           >
@@ -82,11 +84,17 @@
         <el-form-item label="Время записи:" prop="date2">
           <el-time-select
             placeholder="выберите время"
+            size="small"
             v-model="formData.date2"
             :picker-options="timePickerOptions"
           >
           </el-time-select>
         </el-form-item>
+      </div>
+
+      <div class="form_item">
+        <div style="margin-bottom:0.5rem;">Комментарий к заявке:</div>
+        <el-input v-model="formData.note" :rows="3" type="textarea"></el-input>
       </div>
 
       <div :class="$style.note_wrapper" v-if="referenceNote.length">
@@ -105,8 +113,8 @@
 
     <template #footer>
       <el-button-group>
-        <el-button size="small" type="danger" @click="hide">отмена</el-button>
-        <el-button size="small" type="primary" @click="onSubmit">{{
+        <el-button size="mini" type="danger" @click="hide">отмена</el-button>
+        <el-button size="mini" type="primary" @click="onSubmit">{{
           isUpdateDialog ? "обновить" : "создать"
         }}</el-button>
       </el-button-group>
@@ -131,6 +139,7 @@ export default {
         personCount: 1,
         referenceId: null,
         receptionDate: null,
+        note: null,
         date1: null,
         date2: null
       },
@@ -162,12 +171,8 @@ export default {
       },
 
       rules: {
-        referenceId: [
-          {
-            required: true,
-            message: "выберите организацию"
-          }
-        ],
+        referenceId: [{ required: false }],
+        note: [{ required: false }],
 
         date1: [
           {
@@ -207,10 +212,9 @@ export default {
   methods: {
     async show(payload) {
       if (!payload) this.purge();
+      this.$isLoading();
 
       try {
-        this.$isLoading();
-
         await this.loadSignatureTypes();
 
         if (payload) {
@@ -218,6 +222,7 @@ export default {
           this.label = payload.label;
           this.fillUpdateFields(payload);
         }
+
         this.isShowed = true;
       } catch (e) {
         return;
@@ -241,7 +246,7 @@ export default {
         await this.timePickerValidate();
       } catch (e) {
         return this.$onWarning(
-          "Отдохните, перекусите, обеденное время все - таки"
+          "Отдохните, перекусите, обеденное время настало"
         );
       }
 
@@ -308,7 +313,7 @@ export default {
           personCount: this.formData.personCount,
           referenceId: this.formData.referenceId,
           label: selectedReference.label,
-          taxId: selectedReference.taxId,
+          tax_id: selectedReference.tax_id,
           signatureType: this.options.signatureTypes.filter(
             item => item.id == this.formData.signatureTypeId
           )[0].label
@@ -320,7 +325,7 @@ export default {
       const {
         id,
         label,
-        taxId,
+        tax_id,
         signatureTypeId,
         referenceId,
         receptionDate,
@@ -333,7 +338,7 @@ export default {
       this.formData.referenceId = referenceId;
       this.formData.personCount = personCount;
       this.formData.receptionDate = receptionDate;
-      this.options.references = [{ id: referenceId, label, taxId }];
+      this.options.references = [{ id: referenceId, label, tax_id }];
 
       const formattedDate = this.getFormattedDate(receptionDate);
       this.formData.date1 = formattedDate.date;
@@ -343,9 +348,12 @@ export default {
     getFormattedDate(inputDate) {
       const date = new Date(inputDate);
       const minutes = date.getMinutes();
+      const month = date.getMonth() + 1;
 
       return {
-        date: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
+        date: `${date.getFullYear()}-${
+          month < 10 ? "0" + month : month
+        }-${date.getDate()}`,
         time: `${date.getHours()}:${minutes < 10 ? "0" + minutes : minutes}`
       };
     },
@@ -364,6 +372,7 @@ export default {
       this.formData.personCount = 1;
       this.formData.signatureTypeId = 1;
       this.isUpdateDialog = false;
+      this.formData.note = null;
       this.options.references = [];
       this.referenceNote = [];
     },
@@ -378,7 +387,7 @@ export default {
 };
 </script>
 <style module>
-.taxId {
+.tax_id {
   float: right;
   color: #8492a6;
   font-size: 13px;

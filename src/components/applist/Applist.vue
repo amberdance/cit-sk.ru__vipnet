@@ -1,30 +1,9 @@
 <template>
   <div>
     <div class="btn_group__wrapper">
-      <el-button
-        v-if="isFridayToday()"
-        size="mini"
-        type="primary"
-        @click="$refs.dialog.show()"
+      <el-button size="mini" type="primary" @click="$refs.dialog.show()"
         >создать заявку</el-button
       >
-
-      <div v-else :class="$style.warning">
-        <div>
-          <i class="el-icon-warning-outline"></i>Уважаемый пользователь!
-          Создание заявок осуществляется по пятницам
-        </div>
-
-        <div
-          v-if="$isAdmin()"
-          style="display:flex;align-items:center;margin:0 0.5rem;"
-        >
-          ,но вы администратор, вам можно
-          <el-button size="mini" type="primary" @click="$refs.dialog.show()"
-            >создать заявку</el-button
-          >
-        </div>
-      </div>
 
       <transition name="el-fade-in">
         <el-button
@@ -38,7 +17,7 @@
     </div>
 
     <el-table
-      height="78vh"
+      height="75vh"
       class="table_wrapper"
       ref="dataTable"
       border
@@ -58,11 +37,15 @@
         label="номер заявки"
       />
 
-      <el-table-column prop="label" label="организация" sortable />
+      <el-table-column prop="label" label="организация" sortable>
+        <template #default="{row}">
+          {{ row.label || "-" }}
+        </template>
+      </el-table-column>
+
       <el-table-column prop="receptionDate" width="160" align="center">
         <template #header>
           время записи
-
           <el-date-picker
             ref="datePicker"
             style="width:0"
@@ -85,13 +68,25 @@
         width="200"
         align="center"
       />
-      <el-table-column prop="taxId" label="инн" align="center" width="150" />
+
+      <el-table-column prop="taxId" label="инн" align="center" width="150">
+        <template #default="{row}">
+          {{ row.taxId || "-" }}
+        </template>
+      </el-table-column>
+
       <el-table-column
         prop="personCount"
         label="кол-во человек"
         width="150"
         align="center"
       />
+
+      <el-table-column prop="note" label="комментарий" width="200">
+        <template #default="{row}">
+          {{ row.note || "-" }}
+        </template>
+      </el-table-column>
 
       <el-table-column align="center" width="200">
         <template #header>
@@ -143,7 +138,7 @@ export default {
     return {
       entity: "applist",
       filterDate: null,
-      search: "",
+      search: null,
       pageSize: 20,
 
       pickerOptions: {
@@ -164,19 +159,17 @@ export default {
       return this.$store.getters["applist/getList"]("items");
     },
 
-    displayedApplist() {
-      return this.paginate(this.applist);
-    },
-
     dataTable() {
-      return this.displayedApplist.filter(item => {
-        return (
-          !this.search ||
-          item.label.toLowerCase().includes(this.search.toLowerCase()) ||
-          item.receptionDate.includes(this.search.toLowerCase()) ||
-          String(item.taxId).includes(this.search.toLowerCase())
-        );
-      });
+      return this.paginate(
+        this.applist.filter(item => {
+          return (
+            !this.search ||
+            item.label.toLowerCase().includes(this.search.toLowerCase()) ||
+            item.receptionDate.includes(this.search.toLowerCase()) ||
+            String(item.taxId).includes(this.search.toLowerCase())
+          );
+        })
+      );
     }
   },
 
@@ -186,7 +179,7 @@ export default {
 
     try {
       await this.loadApplist();
-      await this.loadRefs();
+      // await this.loadRefs();
     } catch (e) {
       return;
     } finally {
@@ -224,6 +217,7 @@ export default {
   }
 };
 </script>
+
 <style module>
 .datePicker input {
   padding: 0 !important;

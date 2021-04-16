@@ -67,9 +67,9 @@ class ApplistController extends Controller implements Controllerable, IControlle
      */
     public function add(): void
     {
-        if ((int) date('w') !== 5) {
-            $this->errorResponse(108);
-        }
+        // if ((int) date('w') !== 5) {
+        //     $this->errorResponse(108);
+        // }
 
         $this->model->checkIsReceptionDateExists($_POST['signatureTypeId'], $_POST['receptionDate']);
         $id = $this->model->addApplication($this->getBindingParams($_POST));

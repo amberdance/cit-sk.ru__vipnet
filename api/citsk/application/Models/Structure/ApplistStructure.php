@@ -23,6 +23,7 @@ class ApplistStructure extends StructureBase
                 "receptionDate"   => $row['reception_date'],
                 "signatureType"   => $row['signature_label'],
                 "label"           => $row['label'],
+                "note"            => $row['note'],
             ];
         }
     }
