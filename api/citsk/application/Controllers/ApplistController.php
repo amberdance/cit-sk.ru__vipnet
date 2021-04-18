@@ -72,6 +72,11 @@ class ApplistController extends Controller implements Controllerable, IControlle
         // }
 
         $this->model->checkIsReceptionDateExists($_POST['signatureTypeId'], $_POST['receptionDate']);
+
+        if (!$_POST['referenceId']) {
+            unset($_POST['referenceId']);
+        }
+
         $id = $this->model->addApplication($this->getBindingParams($_POST));
         $this->model->setLog($id, 1, "applist_log");
         $payload = $this->model->getApplist($id);

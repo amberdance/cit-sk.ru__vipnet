@@ -46,7 +46,8 @@ export default {
         personCount,
         receptionDate,
         referenceId,
-        signatureTypeId
+        signatureTypeId,
+        note
       } = payload;
 
       const updateFields = {
@@ -54,7 +55,8 @@ export default {
         personCount,
         receptionDate,
         referenceId,
-        signatureTypeId
+        signatureTypeId,
+        note
       };
 
       await dispatch.HTTPPost({

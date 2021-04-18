@@ -161,14 +161,14 @@ export default {
 
     dataTable() {
       return this.paginate(
-        this.applist.filter(item => {
-          return (
+        this.applist.filter(
+          item =>
             !this.search ||
+            !item.taxId ||
             item.label.toLowerCase().includes(this.search.toLowerCase()) ||
             item.receptionDate.includes(this.search.toLowerCase()) ||
             String(item.taxId).includes(this.search.toLowerCase())
-          );
-        })
+        )
       );
     }
   },

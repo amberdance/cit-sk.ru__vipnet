@@ -302,8 +302,7 @@ class DatabaseModel
                 $this->skipArgs();
                 $this->args[$key] = $value;
             } else {
-                // $this->args[$this->getPlaceHolder($key)] = $value;
-                $this->args[$this->getPlaceHolder($key)] = trim(preg_replace("/[[!=<=>=%%!()()!!<>]/", "", $value));
+                $this->args[$this->getPlaceHolder($key)] = trim(preg_replace("/(!=)|(<=)|(>=)|(%%!)|(\()\)|(!!)|(<>)/", "", $value));
             }
         }
 
@@ -603,9 +602,11 @@ class DatabaseModel
         foreach ($filter as $key => $field) {
             if (preg_match("/^[^\w\s:']+/", $field, $match)) {
                 $comparsion = $this->getFilterComparsion($match[0]);
-                $field      = ($match[0] == "()")
+
+                $field = ($match[0] == "()")
                 ? str_replace($match[0], null, "($field)")
                 : str_replace($match[0], null, $field);
+
             } else {
                 $comparsion = "=";
             }

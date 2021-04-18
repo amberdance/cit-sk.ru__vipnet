@@ -75,7 +75,7 @@ class Applist extends CommonModel
     public function addApplication(array $params): int
     {
 
-        return $this->setDbTable($this->dbTable)->add($this->getBindingParams($params))->getInsertedId();
+        return $this->setDbTable($this->dbTable)->add($params)->getInsertedId();
     }
 
     /**

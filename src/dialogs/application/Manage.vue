@@ -93,18 +93,16 @@
       </div>
 
       <div class="form_item">
-        <div style="margin-bottom:0.5rem;">Комментарий к заявке:</div>
+        <div style="margin-bottom: 0.5rem">Комментарий к заявке:</div>
         <el-input v-model="formData.note" :rows="3" type="textarea"></el-input>
       </div>
 
       <div :class="$style.note_wrapper" v-if="referenceNote.length">
-        <div :class="$style.note_label">
-          Заметки организации:
-        </div>
+        <div :class="$style.note_label">Заметки организации:</div>
         <div
           v-for="item in referenceNote"
           :key="item.id"
-          style="border-bottom: 1px #dcdfe6 solid;"
+          style="border-bottom: 1px #dcdfe6 solid"
         >
           <i class="el-icon-date"> </i> {{ item.created }}: {{ item.note }}
         </div>
@@ -121,7 +119,6 @@
     </template>
   </el-dialog>
 </template>
-
 <script>
 export default {
   data() {
@@ -211,7 +208,7 @@ export default {
 
   methods: {
     async show(payload) {
-      if (!payload) this.purge();
+      this.purge();
       this.$isLoading();
 
       try {
@@ -295,7 +292,8 @@ export default {
           receptionDate: this.formData.receptionDate,
           signatureTypeId: this.formData.signatureTypeId,
           personCount: this.formData.personCount,
-          referenceId: this.formData.referenceId
+          referenceId: this.formData.referenceId,
+          note: this.formData.note
         }
       });
     },
@@ -312,6 +310,7 @@ export default {
           signatureTypeId: this.formData.signatureTypeId,
           personCount: this.formData.personCount,
           referenceId: this.formData.referenceId,
+          note: this.formData.note,
           label: selectedReference.label,
           tax_id: selectedReference.tax_id,
           signatureType: this.options.signatureTypes.filter(
@@ -329,7 +328,8 @@ export default {
         signatureTypeId,
         referenceId,
         receptionDate,
-        personCount
+        personCount,
+        note
       } = data;
 
       this.applicationId = id;
@@ -338,6 +338,7 @@ export default {
       this.formData.referenceId = referenceId;
       this.formData.personCount = personCount;
       this.formData.receptionDate = receptionDate;
+      this.formData.note = note;
       this.options.references = [{ id: referenceId, label, tax_id }];
 
       const formattedDate = this.getFormattedDate(receptionDate);
@@ -363,6 +364,11 @@ export default {
     },
 
     onReferenceChange(itemId) {
+      if (!itemId) {
+        this.referenceNote = [];
+        return;
+      }
+
       this.referenceNote = this.options.references.filter(
         ({ id }) => id == itemId
       )[0].notes;
@@ -397,17 +403,18 @@ export default {
   display: flex;
   justify-content: center;
   flex-direction: column;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px #dadada solid;
 }
 .note_wrapper i {
   margin-right: 5px;
-  color: #cc4444;
 }
 .note_wrapper div {
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
 }
 .note_label {
-  color: #cc4444;
   font-size: 16px;
   font-weight: bold;
   margin-bottom: 1rem;
