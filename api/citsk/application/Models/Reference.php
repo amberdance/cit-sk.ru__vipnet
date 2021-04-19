@@ -75,7 +75,7 @@ class Reference extends CommonModel
             "id",
             "label",
             "tax_id",
-            "created"
+            "created",
         ];
 
         $filter = [

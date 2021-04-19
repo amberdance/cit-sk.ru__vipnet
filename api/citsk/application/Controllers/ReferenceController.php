@@ -52,6 +52,7 @@ class ReferenceController extends Controller implements Controllerable, IControl
     public function add(): void
     {
         $this->checkAdminAccess();
+
         $id = $this->model->addReference($this->getBindingParams());
 
         if ($_POST['note']) {

@@ -93,8 +93,8 @@
 
     <template #footer>
       <el-button-group>
-        <el-button size="small" type="danger" @click="hide">отмена</el-button>
-        <el-button size="small" type="primary" @click="onSubmit">{{
+        <el-button size="mini" type="danger" @click="hide">отмена</el-button>
+        <el-button size="mini" type="primary" @click="onSubmit">{{
           isUpdateDialog ? "обновить" : "создать"
         }}</el-button>
       </el-button-group>
@@ -176,21 +176,16 @@ export default {
 
   methods: {
     async show(data) {
-      try {
-        this.$isLoading();
+      this.$isLoading();
 
-        if (data) {
-          this.isUpdateDialog = true;
-          this.label = data.label;
-          this.fillUpdateFields(data);
-        }
-
-        this.isShowed = true;
-      } catch (e) {
-        return;
-      } finally {
-        this.$isLoading(false);
+      if (data) {
+        this.isUpdateDialog = true;
+        this.label = data.label;
+        this.fillUpdateFields(data);
       }
+
+      this.isShowed = true;
+      this.$isLoading(false);
     },
 
     async onSubmit() {

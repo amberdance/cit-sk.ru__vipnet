@@ -36,6 +36,7 @@
             remote
             size="small"
             placeholder="инн, наименование"
+            allow-create
             :remote-method="remoteSearch"
             :loading="isLoading"
             @change="onReferenceChange"
@@ -47,7 +48,7 @@
               :label="item.label"
             >
               <span style="float: left">{{ item.label }}</span>
-              <span :class="$style.tax_id">{{ item.tax_id }}</span>
+              <span :class="$style.taxId">{{ item.taxId }}</span>
             </el-option>
           </el-select>
         </el-form-item>
@@ -312,7 +313,7 @@ export default {
           referenceId: this.formData.referenceId,
           note: this.formData.note,
           label: selectedReference.label,
-          tax_id: selectedReference.tax_id,
+          taxId: selectedReference.taxId,
           signatureType: this.options.signatureTypes.filter(
             item => item.id == this.formData.signatureTypeId
           )[0].label
@@ -324,7 +325,7 @@ export default {
       const {
         id,
         label,
-        tax_id,
+        taxId,
         signatureTypeId,
         referenceId,
         receptionDate,
@@ -339,7 +340,7 @@ export default {
       this.formData.personCount = personCount;
       this.formData.receptionDate = receptionDate;
       this.formData.note = note;
-      this.options.references = [{ id: referenceId, label, tax_id }];
+      this.options.references = [{ id: referenceId, label, taxId }];
 
       const formattedDate = this.getFormattedDate(receptionDate);
       this.formData.date1 = formattedDate.date;
@@ -364,7 +365,7 @@ export default {
     },
 
     onReferenceChange(itemId) {
-      if (!itemId) {
+      if (!Number(itemId) || !itemId) {
         this.referenceNote = [];
         return;
       }
@@ -379,6 +380,8 @@ export default {
       this.formData.signatureTypeId = 1;
       this.isUpdateDialog = false;
       this.formData.note = null;
+      this.formData.date1 = null;
+      this.formData.date2 = null;
       this.options.references = [];
       this.referenceNote = [];
     },
@@ -393,7 +396,7 @@ export default {
 };
 </script>
 <style module>
-.tax_id {
+.taxId {
   float: right;
   color: #8492a6;
   font-size: 13px;

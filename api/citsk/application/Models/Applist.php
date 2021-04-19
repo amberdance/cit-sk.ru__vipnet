@@ -21,11 +21,11 @@ class Applist extends CommonModel
 
     /**
      * @param int|null $id
-     * @param int $isActive
+     * @param array|null $filter
      *
      * @return ApplistStructure
      */
-    public function getApplist(?int $id = null, $isActive = 1): ApplistStructure
+    public function getApplist(?int $id = null, array $params = []): ApplistStructure
     {
 
         $select = [
@@ -45,7 +45,7 @@ class Applist extends CommonModel
         ];
 
         $filter = [
-            "is_active" => $isActive,
+            "is_active" => $params['is_active'] ?? 1,
         ];
 
         $join = [
@@ -54,14 +54,22 @@ class Applist extends CommonModel
         ];
 
         $sort = [
-            'applist.reception_date' => 'desc',
+            'applist.id' => 'desc',
         ];
+
+        $args = [];
 
         if ($id) {
             $filter["applist.id"] = $id;
         }
+        if (isset($params['reception_date']) && is_array($params['reception_date'])) {
+            $filter["applist.reception_date"] = "<> :start AND :end";
+            $args[":start"]                   = $params['reception_date'][0];
+            $args[":end"]                     = $params['reception_date'][1];
+        }
 
         $rows = $this->setDbTable($this->dbTable)
+            ->setArgs($args)
             ->select($select, $filter, $join)
             ->setSorting($sort)
             ->getRows();
@@ -85,7 +93,7 @@ class Applist extends CommonModel
      *
      * @return void
      */
-    public function checkIsReceptionDateExists(int $signatureTypeId, string $receptionDate, int $id = null): void
+    public function isReceptionDateExists(int $signatureTypeId, string $receptionDate, int $id = null): void
     {
 
         $select = "id";
@@ -132,6 +140,7 @@ class Applist extends CommonModel
             "reception_date",
             "signature_type_id",
             "reference_id",
+            "note",
         ];
 
         $filter = [
@@ -162,11 +171,11 @@ class Applist extends CommonModel
 
     /**
      * @param int $id
-     * @param array $difference
+     * @param array $params
      *
      * @return void
      */
-    public function updateApplicationHistory(int $id, array $difference): void
+    public function updateApplicationHistory(int $id, array $params): void
     {
 
         $insert = [
@@ -179,17 +188,17 @@ class Applist extends CommonModel
             "applist_id" => $id,
         ];
 
-        $propertyKeys = array_keys($difference['new_value']);
+        $propertyKeys = array_keys($params['new_value']);
 
         foreach ($propertyKeys as $key) {
             $insert["old_value"][] = [
                 "property" => $key,
-                "value"    => $difference['old_value'][$key],
+                "value"    => $params['old_value'][$key],
             ];
 
             $insert["new_value"][] = [
                 "property" => $key,
-                "value"    => $difference['new_value'][$key],
+                "value"    => $params['new_value'][$key],
             ];
         }
 
@@ -227,10 +236,11 @@ class Applist extends CommonModel
     /**
      * @param int $id
      *
-     * @return ApplistStructure
+     * @return array
      */
-    public function getApplicationHistory(int $id)
+    public function getApplicationHistory(int $id): array
     {
+
         $select = [
             "old_value",
             "new_value",
@@ -245,6 +255,8 @@ class Applist extends CommonModel
         $rows = $this->setDbTable("applist_history")
             ->select($select, $filter)
             ->getRows()[0];
+
+       
 
         $rows['old_value'] = unserialize($rows['old_value']);
         $rows['new_value'] = unserialize($rows['new_value']);

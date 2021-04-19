@@ -1,6 +1,7 @@
 <template>
   <el-container>
     <Preloader v-show="isLoading" />
+
     <el-header>
       <Header>
         <template #navMenu>
@@ -8,9 +9,12 @@
         </template>
       </Header>
     </el-header>
+
     <el-container>
       <el-main>
-        <router-view />
+        <slot>
+          <router-view />
+        </slot>
       </el-main>
     </el-container>
   </el-container>
@@ -30,3 +34,13 @@ export default {
   }
 };
 </script>
+
+<style module>
+.right_aside {
+  display: flex;
+  justify-content: center;
+  z-index: 1;
+  height: 100vh;
+  box-shadow: 1px -4px 10px 0px #0e000024;
+}
+</style>

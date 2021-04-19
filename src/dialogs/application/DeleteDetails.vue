@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    width="40%"
+    width="30%"
     :visible.sync="isShowed"
     :title="`Заявка # ${application.id}`"
     @close="hide"
@@ -48,6 +48,9 @@ export default {
 <style module>
 .wrapper div {
   margin: 1rem 0;
+  border-bottom: 1px #dadada solid;
+  padding-bottom: 0.5rem;
+  width: 90%;
 }
 .wrapper span {
   font-weight: bold;

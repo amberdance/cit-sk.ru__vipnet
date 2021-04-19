@@ -62,6 +62,7 @@ class CommonModel extends DatabaseModel
      */
     public function setLog(int $id, int $eventId, string $dbTable = "applist_log"): void
     {
+
         global $USER;
 
         $insert = [

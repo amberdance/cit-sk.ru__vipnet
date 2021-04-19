@@ -1,136 +1,133 @@
 <template>
-  <div>
-    <div class="btn_group__wrapper">
-      <el-button size="mini" type="primary" @click="$refs.dialog.show()"
-        >создать заявку</el-button
+  <div class="d-flex">
+    <div class="content_wrapper">
+      <el-table
+        height="83vh"
+        class="table_wrapper"
+        ref="dataTable"
+        border
+        :data="dataTable"
+        :default-sort="{ prop: 'id', order: 'descending' }"
+        :header-cell-style="headerCellStyle"
+        @selection-change="handleSelectionChange"
+        @header-click="openDatePicker"
       >
+        <el-table-column align="center" type="selection" width="65" prop="id" />
 
-      <transition name="el-fade-in">
-        <el-button
-          v-show="selection.length"
-          size="mini"
-          type="danger"
-          @click="remove"
-          >удалить({{ selection.length }})</el-button
+        <el-table-column
+          v-if="$isAdmin()"
+          align="center"
+          width="100"
+          prop="id"
+          sortable
+          label="ID"
+        />
+
+        <el-table-column prop="label" label="организация" width="250" sortable>
+          <template #default="{ row }">
+            {{ row.label || "-" }}
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="taxId" label="инн" align="center" width="150">
+          <template #default="{ row }">
+            {{ row.taxId || "-" }}
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          prop="receptionDate"
+          width="190"
+          align="center"
+          sortable
         >
-      </transition>
+          <template #header>
+            время записи
+            <el-date-picker
+              ref="datePicker"
+              style="width: 0"
+              align="left"
+              placeholder="выберите дату"
+              v-model="search"
+              type="date"
+              value-format="yyyy-MM-dd"
+              prefix-icon=" "
+              :class="$style.datePicker"
+              :picker-options="pickerOptions"
+            >
+            </el-date-picker>
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          prop="signatureType"
+          label="тип записи"
+          width="200"
+          align="center"
+          sortable
+        />
+
+        <el-table-column
+          prop="personCount"
+          label="кол-во человек"
+          width="120"
+          align="center"
+          sortable
+        />
+
+        <el-table-column prop="note" label="комментарий">
+          <template #default="{ row }">
+            {{ row.note || "-" }}
+          </template>
+        </el-table-column>
+
+        <el-table-column align="center" width="100">
+          <template #default="{ row }">
+            <el-button
+              size="mini"
+              type="secondary"
+              @click="$refs.dialog.show(row)"
+              >изменить</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <el-pagination
+        class="pagination_wrapper"
+        background
+        layout="prev, pager, next, jumper, sizes, total"
+        :page-sizes="pageSizes"
+        :page-size="pageSize"
+        :total="applist.length"
+        :current-page="currentPage"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      ></el-pagination>
+
+      <Dialog ref="dialog" />
     </div>
 
-    <el-table
-      height="75vh"
-      class="table_wrapper"
-      ref="dataTable"
-      border
-      :data="dataTable"
-      :default-sort="{ prop: 'receptionDate', order: 'descending' }"
-      :header-cell-style="headerCellStyle"
-      @selection-change="handleSelectionChange"
-      @header-click="openDatePicker"
-    >
-      <el-table-column align="center" type="selection" width="65" prop="id" />
-
-      <el-table-column
-        v-if="$isAdmin()"
-        align="center"
-        width="160"
-        prop="id"
-        label="номер заявки"
+    <div class="right_aside">
+      <ApplistFilter
+        slot="rightPanel"
+        :filter-params="filterParams"
+        :selected-rows-count="selection.length"
+        @onRowsRemove="remove"
+        @onCreateApplication="$refs.dialog.show()"
       />
-
-      <el-table-column prop="label" label="организация" sortable>
-        <template #default="{row}">
-          {{ row.label || "-" }}
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="receptionDate" width="160" align="center">
-        <template #header>
-          время записи
-          <el-date-picker
-            ref="datePicker"
-            style="width:0"
-            align="left"
-            placeholder="выберите дату"
-            v-model="search"
-            type="date"
-            value-format="yyyy-MM-dd"
-            prefix-icon=" "
-            :class="$style.datePicker"
-            :picker-options="pickerOptions"
-          >
-          </el-date-picker>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        prop="signatureType"
-        label="тип записи"
-        width="200"
-        align="center"
-      />
-
-      <el-table-column prop="taxId" label="инн" align="center" width="150">
-        <template #default="{row}">
-          {{ row.taxId || "-" }}
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        prop="personCount"
-        label="кол-во человек"
-        width="150"
-        align="center"
-      />
-
-      <el-table-column prop="note" label="комментарий" width="200">
-        <template #default="{row}">
-          {{ row.note || "-" }}
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" width="200">
-        <template #header>
-          <el-input
-            v-model="search"
-            size="small"
-            placeholder="наименование, инн"
-            clearable
-          />
-        </template>
-
-        <template #default="{row}">
-          <el-button
-            size="mini"
-            type="secondary"
-            @click="$refs.dialog.show(row)"
-            >редактировать</el-button
-          >
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <el-pagination
-      class="pagination_wrapper"
-      background
-      layout="prev, pager, next, jumper, sizes, total"
-      :page-sizes="pageSizes"
-      :page-size="pageSize"
-      :total="applist.length"
-      :current-page="currentPage"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    ></el-pagination>
-
-    <Dialog ref="dialog" />
+    </div>
   </div>
 </template>
+
 <script>
+import ApplistFilter from "@/components/applist/ApplistFilter";
 import TableManage from "@/mixins/TableManage";
 import Pagination from "@/mixins/Pagination";
 import Manage from "@/dialogs/application/Manage";
 
 export default {
-  components: { Dialog: Manage },
+  components: { Dialog: Manage, ApplistFilter },
 
   mixins: [TableManage, Pagination],
 
@@ -138,8 +135,14 @@ export default {
     return {
       entity: "applist",
       filterDate: null,
-      search: null,
-      pageSize: 20,
+      pageSize: 50,
+
+      filterParams: {
+        id: null,
+        label: null,
+        taxId: null,
+        signatureTypeId: []
+      },
 
       pickerOptions: {
         shortcuts: [
@@ -161,14 +164,37 @@ export default {
 
     dataTable() {
       return this.paginate(
-        this.applist.filter(
-          item =>
-            !this.search ||
-            !item.taxId ||
-            item.label.toLowerCase().includes(this.search.toLowerCase()) ||
-            item.receptionDate.includes(this.search.toLowerCase()) ||
-            String(item.taxId).includes(this.search.toLowerCase())
-        )
+        this.applist
+          .filter(
+            ({ id }) =>
+              !this.filterParams.id || String(id).includes(this.filterParams.id)
+          )
+
+          .filter(
+            ({ label }) =>
+              !label ||
+              !this.filterParams.label ||
+              label
+                .toLowerCase()
+                .includes(this.filterParams.label.toLowerCase())
+          )
+
+          .filter(
+            ({ taxId }) =>
+              !taxId ||
+              !this.filterParams.taxId ||
+              String(taxId).includes(this.filterParams.taxId.toLowerCase())
+          )
+
+          .filter(
+            ({ signatureTypeId }) =>
+              !this.filterParams.signatureTypeId.length ||
+              this.filterParams.signatureTypeId.includes(
+                Number(signatureTypeId)
+              )
+          )
+
+          .sort((a, b) => b.id - a.id)
       );
     }
   },

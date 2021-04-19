@@ -26,7 +26,7 @@ const routes = [
 
       {
         path: "/refs",
-        component: () => import("@/components/Reference")
+        component: () => import("@/components/reference/Reference")
       },
 
       {

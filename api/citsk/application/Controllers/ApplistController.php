@@ -6,6 +6,7 @@ use Citsk\Interfaces\Controllerable;
 use Citsk\Interfaces\IController;
 use Citsk\Models\Applist;
 use Citsk\Models\Identity;
+use Citsk\Models\Reference;
 
 class ApplistController extends Controller implements Controllerable, IController
 {
@@ -35,8 +36,12 @@ class ApplistController extends Controller implements Controllerable, IControlle
             $this->checkAdminAccess();
         }
 
-        $isActiveFilter = isset($_POST['isActive']) ? boolval($_POST['isActive']) : 1;
-        $payload        = $this->model->getApplist(null, $isActiveFilter);
+        $filter = [
+            'is_active'      => isset($_POST['isActive']) ? boolval($_POST['isActive']) : 1,
+            'reception_date' => $_POST['receptionDate'],
+        ];
+
+        $payload = $this->model->getApplist(null, $filter);
         $this->dataResponse($payload);
     }
 
@@ -45,9 +50,9 @@ class ApplistController extends Controller implements Controllerable, IControlle
      */
     public function getTrash(): void
     {
+
         $this->checkAdminAccess();
-        $payload = $this->model->getApplist(null, 0);
-        $this->dataResponse($payload);
+        $this->dataResponse($this->model->getApplist(null, ['is_active' => 0]));
     }
 
     /**
@@ -57,9 +62,17 @@ class ApplistController extends Controller implements Controllerable, IControlle
     {
 
         $this->checkAdminAccess();
-        $payload = $this->model->getLogs();
+        $this->dataResponse($this->model->getLogs());
+    }
 
-        $this->dataResponse($payload);
+    /**
+     * @return void
+     */
+    public function getHistory(): void
+    {
+
+        $this->setHTTPMethod("get");
+        $this->dataResponse($this->model->getApplicationHistory($_GET['id']));
     }
 
     /**
@@ -71,16 +84,26 @@ class ApplistController extends Controller implements Controllerable, IControlle
         //     $this->errorResponse(108);
         // }
 
-        $this->model->checkIsReceptionDateExists($_POST['signatureTypeId'], $_POST['receptionDate']);
+        $this->model->isReceptionDateExists($_POST['signatureTypeId'], $_POST['receptionDate']);
 
         if (!$_POST['referenceId']) {
             unset($_POST['referenceId']);
         }
 
-        $id = $this->model->addApplication($this->getBindingParams($_POST));
-        $this->model->setLog($id, 1, "applist_log");
-        $payload = $this->model->getApplist($id);
-        $this->dataResponse($payload);
+        if (is_string($_POST['referenceId'])) {
+            $referenceId = (new Reference)->addReference(['label' => $_POST['referenceId']]);
+        }
+
+        $params = isset($referenceId)
+        ? array_merge($this->getBindingParams(), [
+            'reference_id' => $referenceId ?? $_POST['referenceId'],
+        ])
+        : $this->getBindingParams();
+
+        $id = $this->model->addApplication($params);
+        $this->model->setLog($id, 1);
+
+        $this->dataResponse($this->model->getApplist($id));
     }
 
     /**
@@ -89,11 +112,11 @@ class ApplistController extends Controller implements Controllerable, IControlle
     public function update(): void
     {
 
-        $payload    = $this->getBindingParams($_POST);
+        $payload    = $this->getBindingParams();
         $difference = $this->model->getApplicationDifference($_POST['id'], $payload);
 
         if ($difference) {
-            $this->model->checkIsReceptionDateExists($_POST['signatureTypeId'], $_POST['receptionDate'], $_POST['id']);
+            $this->model->isReceptionDateExists($_POST['signatureTypeId'], $_POST['receptionDate'], $_POST['id']);
             $this->model->updateApplicationHistory($_POST['id'], $difference);
             $this->model->updateApplication($_POST['id'], $payload);
             $this->model->setLog($_POST['id'], 2, "applist_log");
@@ -107,29 +130,14 @@ class ApplistController extends Controller implements Controllerable, IControlle
     /**
      * @return void
      */
-    public function getHistory(): void
-    {
-        $this->setHTTPMethod("get");
-        $payload = $this->model->getApplicationHistory($_GET['id']);
-        $this->dataResponse($payload);
-    }
-
-    /**
-     * @return void
-     */
     public function remove(): void
     {
 
-        $id = $_POST['id'];
-
-        if (is_array($id)) {
-            array_walk($id, function ($id) {
-                isset($_POST['completelyRemove']) ? $this->model->deleteApplication($id) : $this->disableCallback($id);
-
-            });
-        } else {
+        $callback = function ($id) {
             isset($_POST['completelyRemove']) ? $this->model->deleteApplication($id) : $this->disableCallback($id);
-        }
+        };
+
+        is_array($_POST['id']) ? array_walk($_POST['id'], $callback) : $callback($_POST['id']);
 
         $this->successResponse();
     }
