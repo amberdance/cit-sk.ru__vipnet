@@ -1,23 +1,39 @@
 /* eslint-disable no-prototype-builtins */
-export const dateHelper = (format = "yy-mm-dd hh:mm:ss") => {
-  const curentDate = new Date();
-  const y = curentDate.getFullYear();
-  const m = curentDate.getMonth() + 1;
-  const d = curentDate.getDate();
-  const h = curentDate.getHours();
-  const mm = curentDate.getMinutes();
-  const s = curentDate.getSeconds();
+export const dateHelper = {
+  currentDate: null,
+  year: null,
+  month: null,
+  day: null,
+  hour: null,
+  minutes: null,
+  seconds: null,
 
-  if (format === "yy-mm-dd hh:mm:ss") {
-    return `${y}-${m < 10 ? "0" + m : m}-${d < 10 ? "0" + d : d} ${h}:${
-      mm < 10 ? "0" + mm : mm
-    }:${s < 10 ? "0" + s : s}`;
-  }
+  _initialize(customDate) {
+    this.currentDate = customDate ? new Date(customDate) : new Date();
+    this.year = this.currentDate.getFullYear();
+    this.month = this.currentDate.getMonth() + 1;
+    this.day = this.currentDate.getDate();
+    this.hour = this.currentDate.getHours();
+    this.minutes = this.currentDate.getMinutes();
+    this.seconds = this.currentDate.getSeconds();
+  },
 
-  if (format === "dd.mm.yyyy hh:mm") {
-    return `${d < 10 ? "0" + d : d}.${m < 10 ? "0" + m : m}.${y} ${h}:${
-      mm < 10 ? "0" + mm : mm
-    }`;
+  getDate(customDate, delimiter = "-") {
+    this._initialize(customDate);
+
+    return `${this.year}${delimiter}${
+      this.month < 10 ? "0" + this.month : this.month
+    }${delimiter}${this.day < 10 ? "0" + this.day : this.day}`;
+  },
+
+  getDateTime(customDate, delimiter = "-") {
+    this._initialize(customDate);
+
+    return `${this.year}${delimiter}${
+      this.month < 10 ? "0" + this.month : this.month
+    }${delimiter}${this.day < 10 ? "0" + this.day : this.day} ${this.hour}:${
+      this.minutes < 10 ? "0" + this.minutes : this.minutes
+    }:${this.seconds < 10 ? "0" + this.seconds : this.seconds}`;
   }
 };
 

@@ -1,79 +1,69 @@
 <template>
-  <div class="d-flex">
-    <div class="content_wrapper">
-      <el-table
-        height="79vh"
-        class="table_wrapper"
-        ref="tableData"
-        border
-        :data="tableData"
-        :default-sort="{ prop: 'label', order: 'ascending' }"
-        :row-class-name="rowClassName"
-        @selection-change="handleSelectionChange"
-        @row-click="openDetailsDialog"
-      >
-        <el-table-column align="center" type="selection" width="65" prop="id" />
-        <el-table-column
-          prop="label"
-          label="организация"
-          width="480"
-          sortable
-        />
-        <el-table-column prop="city" label="город" width="200" sortable />
-        <el-table-column prop="district" label="район" width="200" sortable />
+  <div>
+    <ReferenceFilter
+      :filter-params="filterParams"
+      :selected-rows-count="selection.length"
+      @onRowsRemove="remove"
+      @onCreateOrganization="$refs.dialog.show()"
+    />
 
-        <el-table-column
-          prop="taxId"
-          label="инн"
-          align="center"
-          width="200"
-          sortable
-        />
-        <el-table-column
-          prop="governmentId"
-          label="огрн"
-          align="center"
-          width="200"
-          sortable
-        />
+    <el-table
+      height="79vh"
+      class="table_wrapper"
+      ref="tableData"
+      border
+      :data="tableData"
+      :default-sort="{ prop: 'label', order: 'ascending' }"
+      :row-class-name="rowClassName"
+      @selection-change="handleSelectionChange"
+      @row-click="openDetailsDialog"
+    >
+      <el-table-column align="center" type="selection" width="70" prop="id" />
+      <el-table-column prop="label" label="организация" sortable />
+      <el-table-column prop="city" label="город" width="250" sortable />
+      <el-table-column prop="district" label="район" width="250" sortable />
 
-        <el-table-column width="100" v-if="isAdmin">
-          <template #default="{row}">
-            <el-button
-              size="mini"
-              type="secondary"
-              @click="$refs.dialog.show(row)"
-              >изменить</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <el-pagination
-        class="pagination_wrapper"
-        background
-        layout="prev, pager, next, jumper, sizes, total"
-        :page-sizes="pageSizes"
-        :page-size="pageSize"
-        :total="references.length"
-        :current-page="currentPage"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      ></el-pagination>
-
-      <ManageDialog ref="dialog" />
-      <DetailsDialog ref="detailsDialog" />
-    </div>
-
-    <div class="right_aside">
-      <ReferenceFilter
-        slot="rightPanel"
-        :filter-params="filterParams"
-        :selected-rows-count="selection.length"
-        @onRowsRemove="remove"
-        @onCreateOrganization="$refs.dialog.show()"
+      <el-table-column
+        prop="taxId"
+        label="инн"
+        align="center"
+        width="250"
+        sortable
       />
-    </div>
+      <el-table-column
+        prop="governmentId"
+        label="огрн"
+        align="center"
+        width="250"
+        sortable
+      />
+
+      <el-table-column width="100" v-if="isAdmin">
+        <template #default="{row}">
+          <el-button
+            size="mini"
+            type="secondary"
+            @click="$refs.dialog.show(row)"
+            >изменить</el-button
+          >
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-pagination
+      class="pagination_wrapper"
+      background
+      layout="prev, pager, next, jumper, sizes, total"
+      :page-sizes="pageSizes"
+      :page-size="50"
+      :total="references.length"
+      :current-page="currentPage"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    ></el-pagination>
+
+    <ManageDialog ref="dialog" />
+    <DetailsDialog ref="detailsDialog" />
   </div>
 </template>
 <script>

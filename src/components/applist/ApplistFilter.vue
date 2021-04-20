@@ -1,11 +1,5 @@
 <template>
-  <AsideLayout slot="rightPanel">
-    <template #title>
-      <div class="a-center" style="text-transform:uppercase;">
-        Фильтр заявок
-      </div>
-    </template>
-
+  <AsideLayout>
     <template #inputGroup>
       <el-date-picker
         size="small"
@@ -61,31 +55,33 @@
     </template>
 
     <template #buttonGroup>
-      <el-button
-        size="mini"
-        type="primary"
-        @click="$emit('onCreateApplication')"
-        >cоздать заявку</el-button
-      >
-
-      <transition name="el-fade-in">
+      <el-button-group>
         <el-button
-          v-show="selectedRowsCount"
           size="mini"
-          type="danger"
-          @click="$emit('onRowsRemove')"
-          >удалить({{ selectedRowsCount }})</el-button
+          type="primary"
+          @click="$emit('onCreateApplication')"
+          >cоздать заявку</el-button
         >
-      </transition>
 
-      <transition name="el-fade-in-linear">
-        <el-button
-          v-show="isFilterModified"
-          size="mini"
-          @click="changeFilter(true)"
-          >сброс</el-button
-        >
-      </transition>
+        <transition name="el-fade-in">
+          <el-button
+            v-show="selectedRowsCount"
+            size="mini"
+            type="danger"
+            @click="$emit('onRowsRemove')"
+            >удалить({{ selectedRowsCount }})</el-button
+          >
+        </transition>
+
+        <transition name="el-fade-in-linear">
+          <el-button
+            v-show="isFilterModified"
+            size="mini"
+            @click="changeFilter(true)"
+            >сброс</el-button
+          >
+        </transition>
+      </el-button-group>
     </template>
   </AsideLayout>
 </template>
@@ -93,6 +89,7 @@
 <script>
 import AsideLayout from "@/components/AsideLayout";
 import DatepickerOptions from "@/mixins/DatepickerOptions";
+import { dateHelper } from "@/utils/common";
 
 export default {
   mixins: [DatepickerOptions],
@@ -116,7 +113,7 @@ export default {
   data() {
     return {
       dateRange: [
-        `${new Date().getFullYear()}-01-01 00:00:00`,
+        `${dateHelper.getDate()} 00:00:00`,
         `${new Date().getFullYear() + 1}-01-01 00:00:00`
       ],
 

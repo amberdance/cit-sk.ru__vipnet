@@ -11,6 +11,7 @@ export default {
                 new Date().getMonth(),
                 1
               );
+
               const end = new Date(
                 new Date().getFullYear(),
                 new Date().getMonth() + 1,
@@ -23,8 +24,9 @@ export default {
           {
             text: "Текущий год",
             onClick(picker) {
-              const end = new Date(new Date().getFullYear(), 11, 31);
               const start = new Date(new Date().getFullYear(), 0);
+              const end = new Date(new Date().getFullYear(), 11, 31);
+
               picker.$emit("pick", [start, end]);
             }
           },
@@ -34,6 +36,7 @@ export default {
             onClick(picker) {
               const start = new Date(new Date().getFullYear() - 1, 0);
               const end = new Date(new Date().getFullYear() - 1, 11, 31);
+
               picker.$emit("pick", [start, end]);
             }
           }

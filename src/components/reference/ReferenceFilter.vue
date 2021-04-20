@@ -1,11 +1,5 @@
 <template>
-  <AsideLayout slot="rightPanel">
-    <template #title>
-      <div class="a-center" style="text-transform:uppercase;">
-        Фильтр организаций
-      </div>
-    </template>
-
+  <AsideLayout>
     <template #inputGroup>
       <el-input
         class="form-item"
@@ -49,36 +43,36 @@
     </template>
 
     <template #buttonGroup>
-      <el-switch
-        class="form-item"
-        v-model="filterParams.hasNotes"
-        active-text="Имеются заметки"
-      ></el-switch>
-
-      <el-divider />
-
-      <el-button
-        size="mini"
-        type="primary"
-        @click="$emit('onCreateOrganization')"
-        >добавить организацию</el-button
-      >
-
-      <transition name="el-fade-in">
+      <el-button-group style="display:flex;align-items:center;">
         <el-button
-          v-show="selectedRowsCount"
           size="mini"
-          type="danger"
-          @click="$emit('onRowsRemove')"
-          >удалить({{ selectedRowsCount }})</el-button
+          type="primary"
+          @click="$emit('onCreateOrganization')"
+          >добавить организацию</el-button
         >
-      </transition>
 
-      <transition name="el-fade-in-linear">
-        <el-button v-show="isFilterModified" size="mini" @click="reset"
-          >сброс</el-button
-        >
-      </transition>
+        <transition name="el-fade-in">
+          <el-button
+            v-show="selectedRowsCount"
+            size="mini"
+            type="danger"
+            @click="$emit('onRowsRemove')"
+            >удалить({{ selectedRowsCount }})</el-button
+          >
+        </transition>
+
+        <transition name="el-fade-in-linear">
+          <el-button v-show="isFilterModified" size="mini" @click="reset"
+            >сброс</el-button
+          >
+        </transition>
+
+        <el-switch
+          class="form-item"
+          v-model="filterParams.hasNotes"
+          active-text="Имеются заметки"
+        ></el-switch>
+      </el-button-group>
     </template>
   </AsideLayout>
 </template>

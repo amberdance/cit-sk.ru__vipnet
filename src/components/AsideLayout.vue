@@ -1,14 +1,14 @@
 <template>
   <div :class="$style.form_wrapper">
-    <template v-if="$slots.title">
-      <slot name="title" />
-      <el-divider />
-    </template>
+    <div style="display:flex;">
+      <template v-if="$slots.title">
+        <slot name="title" />
+      </template>
 
-    <template v-if="$slots.inputGroup">
-      <slot name="inputGroup" />
-      <el-divider />
-    </template>
+      <template v-if="$slots.inputGroup">
+        <slot name="inputGroup" />
+      </template>
+    </div>
 
     <template v-if="$slots.buttonGroup">
       <div :class="$style.btn_group">
@@ -17,11 +17,9 @@
     </template>
 
     <template v-if="$slots.summaryRow">
-      <el-divider />
       <div class="form-label form-item a-center">
         <slot name="summaryRow" />
       </div>
-      <el-divider />
     </template>
   </div>
 </template>
@@ -31,25 +29,20 @@
   font-size: 14px;
   color: gray;
   display: flex;
-  align-items: center;
   flex-direction: column;
   padding: 0.7rem;
-  margin-top: 50%;
 }
 .form_wrapper div {
   width: 100% !important;
+  margin: 0 0.2rem;
 }
 .btn_group {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
+  margin: 0.5rem 0 !important;
 }
 .btn_group button {
   margin: 0.2rem 0;
   margin-left: 0 !important;
-  width: 100%;
   font-size: 13px;
 }
 .btn_group span:first-child {
