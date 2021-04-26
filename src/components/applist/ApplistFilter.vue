@@ -55,33 +55,24 @@
     </template>
 
     <template #buttonGroup>
-      <el-button-group>
+      <transition name="el-fade-in-linear">
         <el-button
+          v-show="isFilterModified"
           size="mini"
-          type="primary"
-          @click="$emit('onCreateApplication')"
-          >cоздать заявку</el-button
+          @click="changeFilter(true)"
+          >сброс</el-button
         >
+      </transition>
 
-        <transition name="el-fade-in">
-          <el-button
-            v-show="selectedRowsCount"
-            size="mini"
-            type="danger"
-            @click="$emit('onRowsRemove')"
-            >удалить({{ selectedRowsCount }})</el-button
-          >
-        </transition>
-
-        <transition name="el-fade-in-linear">
-          <el-button
-            v-show="isFilterModified"
-            size="mini"
-            @click="changeFilter(true)"
-            >сброс</el-button
-          >
-        </transition>
-      </el-button-group>
+      <transition name="el-fade-in">
+        <el-button
+          v-show="selectedRowsCount"
+          size="mini"
+          type="danger"
+          @click="$emit('onRowsRemove')"
+          >удалить({{ selectedRowsCount }})</el-button
+        >
+      </transition>
     </template>
   </AsideLayout>
 </template>
@@ -114,14 +105,16 @@ export default {
     return {
       dateRange: [
         `${dateHelper.getDate()} 00:00:00`,
-        `${new Date().getFullYear() + 1}-01-01 00:00:00`
-      ],
-
-      signatureTypes: []
+        `${dateHelper.getDate()} 00:00:00`
+      ]
     };
   },
 
   computed: {
+    signatureTypes() {
+      return this.$store.getters["applist/getList"]("signatures");
+    },
+
     isFilterModified() {
       return (
         this.filterParams.id ||
@@ -136,21 +129,27 @@ export default {
   async created() {
     if (this.signatureTypes.length) return;
 
-    this.signatureTypes = await this.$HTTPGet({
-      route: "/common/get-signatures"
+    await this.$store.dispatch("applist/loadData", {
+      route: "/common/get-signatures",
+      key: "signatures"
     });
   },
 
   methods: {
-    async changeFilter(reset = false) {
+    async changeFilter(isReset = false) {
       this.$isLoading();
 
       try {
-        if (reset) this.resetFilter();
+        if (isReset) this.resetFilter();
 
         await this.$store.dispatch("applist/loadData", {
           route: "get-list",
-          payload: { receptionDate: this.dateRange }
+          payload: {
+            receptionDate:
+              this.dateRange[0] == this.dateRange[1]
+                ? this.dateRange[0]
+                : this.dateRange
+          }
         });
       } catch (e) {
         return;

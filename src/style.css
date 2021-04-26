@@ -20,7 +20,7 @@ header {
 }
 .content_wrapper {
   overflow-x: auto;
-  width: calc(100% - 220px);
+  /* width: calc(100% - 220px); */
 }
 .table_wrapper th {
   text-transform: uppercase;
@@ -104,10 +104,11 @@ header {
 }
 .right_aside {
   display: flex;
+  padding: 0.5rem;
   justify-content: center;
   z-index: 1;
   height: 90vh;
-  width: 220px !important;
+  width: 240px !important;
 }
 .a-center {
   text-align: center !important;

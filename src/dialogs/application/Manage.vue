@@ -1,11 +1,7 @@
 <template>
-  <el-dialog
-    width="30%"
-    :visible.sync="isShowed"
-    :close-on-click-modal="false"
-    :title="title"
-    @close="hide"
-  >
+  <div :class="$style.wrapper" v-loading="isLoading">
+    <div class="a-center">{{ title }}</div>
+    <el-divider />
     <el-form
       inline
       label-width="200px"
@@ -55,10 +51,10 @@
       </div>
 
       <div class="form_item">
-        <el-form-item label="Тип ЭП:" required>
+        <el-form-item label="Тип ЭП:" prop="signatureTypeId">
           <el-select v-model="formData.signatureTypeId" size="small">
             <el-option
-              v-for="item in options.signatureTypes"
+              v-for="item in signatureTypes"
               :key="item.id"
               :value="item.id"
               :label="item.label"
@@ -110,21 +106,20 @@
       </div>
     </el-form>
 
-    <template #footer>
+    <div class="a-center">
       <el-button-group>
-        <el-button size="mini" type="danger" @click="hide">отмена</el-button>
+        <el-button size="mini" type="info" @click="hide">reset</el-button>
         <el-button size="mini" type="primary" @click="onSubmit">{{
-          isUpdateDialog ? "обновить" : "создать"
+          isUpdateDialog ? "update" : "create"
         }}</el-button>
       </el-button-group>
-    </template>
-  </el-dialog>
+    </div>
+  </div>
 </template>
 <script>
 export default {
   data() {
     return {
-      isShowed: false,
       isLoading: false,
       isUpdateDialog: false,
       label: null,
@@ -169,6 +164,7 @@ export default {
       },
 
       rules: {
+        signatureTypeId: [{ required: false }],
         referenceId: [{ required: false }],
         note: [{ required: false }],
 
@@ -198,45 +194,16 @@ export default {
       );
     },
 
-    title() {
-      return this.isUpdateDialog ? this.label : "Создание заявки";
+    signatureTypes() {
+      return this.$store.getters["applist/getList"]("signatures");
     },
 
-    signatureTypePayload() {
-      return this.$route.path == "/applist/vipnet" ? "vipnet" : "signature";
+    title() {
+      return this.isUpdateDialog ? this.label : "Application creation:";
     }
   },
 
   methods: {
-    async show(payload) {
-      this.purge();
-      this.$isLoading();
-
-      try {
-        await this.loadSignatureTypes();
-
-        if (payload) {
-          this.isUpdateDialog = true;
-          this.label = payload.label;
-          this.fillUpdateFields(payload);
-        }
-
-        this.isShowed = true;
-      } catch (e) {
-        return;
-      } finally {
-        this.$isLoading(false);
-      }
-    },
-
-    async loadSignatureTypes() {
-      if (this.options.signatureTypes.length) return;
-
-      this.options.signatureTypes = await this.$HTTPGet({
-        route: "/common/get-signatures"
-      });
-    },
-
     async onSubmit() {
       await this.$refs.form.validate();
 
@@ -248,7 +215,7 @@ export default {
         );
       }
 
-      this.$isLoading();
+      this.isLoading = true;
 
       try {
         this.formData.receptionDate = `${this.formData.date1} ${this.formData.date2}`;
@@ -263,7 +230,7 @@ export default {
             `На дату ${this.formData.receptionDate} уже назначена запись`
           );
       } finally {
-        this.$isLoading(false);
+        this.isLoading = false;
       }
     },
 
@@ -314,7 +281,7 @@ export default {
           note: this.formData.note,
           label: selectedReference.label,
           taxId: selectedReference.taxId,
-          signatureType: this.options.signatureTypes.filter(
+          signatureType: this.signatureTypes.filter(
             item => item.id == this.formData.signatureTypeId
           )[0].label
         }
@@ -341,10 +308,12 @@ export default {
       this.formData.receptionDate = receptionDate;
       this.formData.note = note;
       this.options.references = [{ id: referenceId, label, taxId }];
+      this.label = label;
 
       const formattedDate = this.getFormattedDate(receptionDate);
       this.formData.date1 = formattedDate.date;
       this.formData.date2 = formattedDate.time;
+      this.isUpdateDialog = true;
     },
 
     getFormattedDate(inputDate) {
@@ -387,7 +356,6 @@ export default {
     },
 
     hide() {
-      this.isShowed = false;
       this.$refs.form.clearValidate();
       this.$refs.form.resetFields();
       this.purge();

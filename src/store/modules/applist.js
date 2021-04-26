@@ -8,7 +8,8 @@ export default {
   state: {
     items: [],
     logs: [],
-    trash: []
+    trash: [],
+    signatures: []
   },
 
   getters: {

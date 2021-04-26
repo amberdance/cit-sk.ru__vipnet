@@ -4,95 +4,103 @@
       :filter-params="filterParams"
       :selected-rows-count="selection.length"
       @onRowsRemove="remove"
-      @onCreateApplication="$refs.dialog.show()"
     />
 
-    <el-table
-      height="83vh"
-      class="table_wrapper"
-      ref="dataTable"
-      border
-      :data="dataTable"
-      :default-sort="{ prop: 'id', order: 'descending' }"
-      :header-cell-style="headerCellStyle"
-      @selection-change="handleSelectionChange"
-      @header-click="openDatePicker"
-    >
-      <el-table-column align="center" type="selection" width="65" prop="id" />
+    <div class="content_wrapper d-flex">
+      <el-table
+        height="90vh"
+        class="table_wrapper"
+        ref="dataTable"
+        border
+        :data="dataTable"
+        :default-sort="{ prop: 'id', order: 'descending' }"
+        :header-cell-style="headerCellStyle"
+        @selection-change="handleSelectionChange"
+        @header-click="openDatePicker"
+      >
+        <el-table-column align="center" type="selection" width="65" prop="id" />
 
-      <el-table-column
-        v-if="$isAdmin()"
-        align="center"
-        width="100"
-        prop="id"
-        sortable
-        label="ID"
-      />
+        <el-table-column
+          v-if="$isAdmin()"
+          align="center"
+          width="100"
+          prop="id"
+          sortable
+          label="ID"
+        />
 
-      <el-table-column prop="label" label="организация" width="250" sortable>
-        <template #default="{ row }">
-          {{ row.label || "-" }}
-        </template>
-      </el-table-column>
+        <el-table-column prop="label" label="организация" width="250" sortable>
+          <template #default="{ row }">
+            {{ row.label || "-" }}
+          </template>
+        </el-table-column>
 
-      <el-table-column prop="taxId" label="инн" align="center" width="150">
-        <template #default="{ row }">
-          {{ row.taxId || "-" }}
-        </template>
-      </el-table-column>
+        <el-table-column prop="taxId" label="инн" align="center" width="150">
+          <template #default="{ row }">
+            {{ row.taxId || "-" }}
+          </template>
+        </el-table-column>
 
-      <el-table-column prop="receptionDate" width="190" align="center" sortable>
-        <template #header>
-          время записи
-          <el-date-picker
-            ref="datePicker"
-            style="width: 0"
-            align="left"
-            placeholder="выберите дату"
-            v-model="search"
-            type="date"
-            value-format="yyyy-MM-dd"
-            prefix-icon=" "
-            :class="$style.datePicker"
-            :picker-options="pickerOptions"
-          >
-          </el-date-picker>
-        </template>
-      </el-table-column>
+        <el-table-column
+          prop="receptionDate"
+          width="190"
+          align="center"
+          sortable
+        >
+          <template #header>
+            время записи
+            <el-date-picker
+              ref="datePicker"
+              style="width: 0"
+              align="left"
+              placeholder="выберите дату"
+              v-model="search"
+              type="date"
+              value-format="yyyy-MM-dd"
+              prefix-icon=" "
+              :class="$style.datePicker"
+              :picker-options="pickerOptions"
+            >
+            </el-date-picker>
+          </template>
+        </el-table-column>
 
-      <el-table-column
-        prop="signatureType"
-        label="тип записи"
-        width="200"
-        align="center"
-        sortable
-      />
+        <el-table-column
+          prop="signatureType"
+          label="тип записи"
+          width="200"
+          align="center"
+          sortable
+        />
 
-      <el-table-column
-        prop="personCount"
-        label="кол-во человек"
-        width="120"
-        align="center"
-        sortable
-      />
+        <el-table-column
+          prop="personCount"
+          label="кол-во человек"
+          width="120"
+          align="center"
+          sortable
+        />
 
-      <el-table-column prop="note" label="комментарий">
-        <template #default="{ row }">
-          {{ row.note || "-" }}
-        </template>
-      </el-table-column>
+        <el-table-column prop="note" label="комментарий">
+          <template #default="{ row }">
+            {{ row.note || "-" }}
+          </template>
+        </el-table-column>
 
-      <el-table-column align="center" width="100">
-        <template #default="{ row }">
-          <el-button
-            size="mini"
-            type="secondary"
-            @click="$refs.dialog.show(row)"
-            >изменить</el-button
-          >
-        </template>
-      </el-table-column>
-    </el-table>
+        <el-table-column align="center" width="100">
+          <template #default="{ row }">
+            <el-button
+              size="mini"
+              type="secondary"
+              @click="$refs.managePanel.fillUpdateFields(row)"
+              >изменить</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <div class="right_aside"><ManageApplication ref="managePanel" /></div>
+    </div>
 
     <el-pagination
       class="pagination_wrapper"
@@ -105,8 +113,6 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     ></el-pagination>
-
-    <Dialog ref="dialog" />
   </div>
 </template>
 
@@ -118,7 +124,7 @@ import Manage from "@/dialogs/application/Manage";
 import { dateHelper } from "@/utils/common";
 
 export default {
-  components: { Dialog: Manage, ApplistFilter },
+  components: { ManageApplication: Manage, ApplistFilter },
 
   mixins: [TableManage, Pagination],
 
@@ -209,10 +215,7 @@ export default {
       await this.$store.dispatch(`${this.entity}/loadData`, {
         route: "get-list",
         payload: {
-          receptionDate: [
-            `${dateHelper.getDate()} 00:00:00`,
-            `${new Date().getFullYear() + 1}-01-01 00:00:00`
-          ]
+          receptionDate: `${dateHelper.getDate()} 00:00:00`
         }
       });
     },

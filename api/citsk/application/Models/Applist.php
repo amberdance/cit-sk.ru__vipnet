@@ -62,10 +62,17 @@ class Applist extends CommonModel
         if ($id) {
             $filter["applist.id"] = $id;
         }
+
         if (isset($params['reception_date']) && is_array($params['reception_date'])) {
             $filter["applist.reception_date"] = "<> :start AND :end";
             $args[":start"]                   = $params['reception_date'][0];
             $args[":end"]                     = $params['reception_date'][1];
+        }
+
+        if (isset($params['reception_date']) && is_string($params['reception_date'])) {
+            $filter["applist.reception_date"] = "<> :start AND :end";
+            $args[":start"]                   = $params['reception_date'];
+            $args[":end"]                     = str_replace("00:00:00", "23:59:59", $params['reception_date']);
         }
 
         $rows = $this->setDbTable($this->dbTable)
@@ -255,8 +262,6 @@ class Applist extends CommonModel
         $rows = $this->setDbTable("applist_history")
             ->select($select, $filter)
             ->getRows()[0];
-
-       
 
         $rows['old_value'] = unserialize($rows['old_value']);
         $rows['new_value'] = unserialize($rows['new_value']);
