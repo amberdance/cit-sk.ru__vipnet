@@ -70,8 +70,9 @@
             v-model="formData.date1"
             type="date"
             size="small"
-            :picker-options="pickerOptions"
+            format="dd-MM-yyyy"
             value-format="yyyy-MM-dd"
+            :picker-options="pickerOptions"
           >
           </el-date-picker>
         </el-form-item>
@@ -108,9 +109,9 @@
 
     <div class="a-center">
       <el-button-group>
-        <el-button size="mini" type="info" @click="hide">reset</el-button>
+        <el-button size="mini" type="info" @click="hide">сброс</el-button>
         <el-button size="mini" type="primary" @click="onSubmit">{{
-          isUpdateDialog ? "update" : "create"
+          isUpdateDialog ? "обновить" : "создать"
         }}</el-button>
       </el-button-group>
     </div>
@@ -149,6 +150,7 @@ export default {
       },
 
       pickerOptions: {
+        firstDayOfWeek: 1,
         disabledDate(date) {
           const dateNow = new Date();
           dateNow.getDay();
@@ -317,14 +319,15 @@ export default {
     },
 
     getFormattedDate(inputDate) {
+      console.log(inputDate);
       const date = new Date(inputDate);
       const minutes = date.getMinutes();
       const month = date.getMonth() + 1;
 
       return {
-        date: `${date.getFullYear()}-${
+        date: `${date.getDate()}-${
           month < 10 ? "0" + month : month
-        }-${date.getDate()}`,
+        }-${date.getFullYear()}`,
         time: `${date.getHours()}:${minutes < 10 ? "0" + minutes : minutes}`
       };
     },
@@ -363,6 +366,7 @@ export default {
   }
 };
 </script>
+
 <style module>
 .taxId {
   float: right;

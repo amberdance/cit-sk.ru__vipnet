@@ -33,7 +33,7 @@ class Applist extends CommonModel
             "applist.created",
             "applist.person_count",
             "applist.note",
-            "DATE_FORMAT(applist.reception_date, '%Y-%m-%d %H:%i')" => "reception_date",
+            "DATE_FORMAT(applist.reception_date, '%d-%m-%Y %H:%i')" => "reception_date",
             "signature.label"                                       => "signature_label",
             "signature.id"                                          => "signature_id",
             "ref.id"                                                => "ref_id",
@@ -88,8 +88,7 @@ class Applist extends CommonModel
      * @return int
      */
     public function addApplication(array $params): int
-    {
-
+    {   
         return $this->setDbTable($this->dbTable)->add($params)->getInsertedId();
     }
 

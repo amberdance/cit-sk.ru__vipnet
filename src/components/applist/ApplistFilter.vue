@@ -13,6 +13,7 @@
       ></el-date-picker>
 
       <el-input
+        v-if="$isAdmin()"
         class="form-item"
         size="small"
         placeholder="номер заявки"

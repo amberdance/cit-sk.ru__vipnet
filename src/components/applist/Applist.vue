@@ -16,7 +16,6 @@
         :default-sort="{ prop: 'id', order: 'descending' }"
         :header-cell-style="headerCellStyle"
         @selection-change="handleSelectionChange"
-        @header-click="openDatePicker"
       >
         <el-table-column align="center" type="selection" width="65" prop="id" />
 
