@@ -2,7 +2,8 @@
 
 namespace App\Models\User;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Interfaces\ResourceModel;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
@@ -19,7 +20,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @property string email
  * @property boolean is_active
  */
-class User extends Model implements JWTSubject
+class User extends Authenticatable implements JWTSubject, ResourceModel
 {
     use HasRoles;
 
