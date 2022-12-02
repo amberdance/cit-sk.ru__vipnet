@@ -4,6 +4,7 @@ namespace App\Models\User;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasRoles;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 /**
  * @property int id
@@ -18,7 +19,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string email
  * @property boolean is_active
  */
-class User extends Model
+class User extends Model implements JWTSubject
 {
     use HasRoles;
 
@@ -35,4 +36,20 @@ class User extends Model
     ];
 
     protected $fillable = [];
+
+    /**
+     * @return mixed
+     */
+    public function getJWTIdentifier(): mixed
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * @return array
+     */
+    public function getJWTCustomClaims(): array
+    {
+        return [];
+    }
 }
