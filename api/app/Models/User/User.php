@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\User;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * @property int id
@@ -19,8 +20,18 @@ use Illuminate\Database\Eloquent\Model;
  */
 class User extends Model
 {
+    use HasRoles;
+
     protected $casts = [
         'is_active' => 'boolean',
+    ];
+
+    protected $hidden = [
+        "password",
+        "login",
+        "created_at",
+        "updated_at",
+        "is_active",
     ];
 
     protected $fillable = [];

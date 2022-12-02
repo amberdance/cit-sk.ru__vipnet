@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\User;
+use App\Models\User\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Carbon;
@@ -70,10 +70,21 @@ return new class extends Migration
         $i     = 1;
 
         foreach ($users as $login => $password) {
+            /** @var User */
             $user             = User::where("login", $login)->first();
             $user->created_at = Carbon::now();
             $user->first_name = "Пользователь №" . $i++;
             $user->password   = Hash::make($password);
+            $user->assignRole();
+
+            if (strpos($login, "super") != false) {
+                $user->assignRole(Constants::ADMIN_ROLE);
+            }
+
+            if (strpos($login, "user") != false) {
+                $user->assignRole(Constants::USER_ROLE);
+            }
+
             $user->save();
         }
 
