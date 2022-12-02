@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\PermissionRegistrar;
 
 class CreatePermissionTables extends Migration
@@ -14,9 +14,9 @@ class CreatePermissionTables extends Migration
      */
     public function up()
     {
-        $tableNames = config('permission.table_names');
+        $tableNames  = config('permission.table_names');
         $columnNames = config('permission.column_names');
-        $teams = config('permission.teams');
+        $teams       = config('permission.teams');
 
         if (empty($tableNames)) {
             throw new \Exception('Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
@@ -27,8 +27,8 @@ class CreatePermissionTables extends Migration
 
         Schema::create($tableNames['permissions'], function (Blueprint $table) {
             $table->bigIncrements('id'); // permission id
-            $table->string('name');       // For MySQL 8.0 use string('name', 125);
-            $table->string('guard_name'); // For MySQL 8.0 use string('guard_name', 125);
+            $table->string('name'); // For MySQL 8.0 use string('name', 125);
+            $table->string('guard_name')->default("api"); // For MySQL 8.0 use string('guard_name', 125);
             $table->string('description')->nullable();
             $table->timestamps();
 
@@ -37,12 +37,13 @@ class CreatePermissionTables extends Migration
 
         Schema::create($tableNames['roles'], function (Blueprint $table) use ($teams, $columnNames) {
             $table->bigIncrements('id'); // role id
-            if ($teams || config('permission.testing')) { // permission.testing is a fix for sqlite testing
+            if ($teams || config('permission.testing')) {
+                // permission.testing is a fix for sqlite testing
                 $table->unsignedBigInteger($columnNames['team_foreign_key'])->nullable();
                 $table->index($columnNames['team_foreign_key'], 'roles_team_foreign_key_index');
             }
-            $table->string('name');       // For MySQL 8.0 use string('name', 125);
-            $table->string('guard_name'); // For MySQL 8.0 use string('guard_name', 125);
+            $table->string('name'); // For MySQL 8.0 use string('name', 125);
+            $table->string('guard_name')->default("api"); // For MySQL 8.0 use string('guard_name', 125);
             $table->string('description')->nullable();
             $table->timestamps();
             if ($teams || config('permission.testing')) {
@@ -119,6 +120,7 @@ class CreatePermissionTables extends Migration
         app('cache')
             ->store(config('permission.cache.store') != 'default' ? config('permission.cache.store') : null)
             ->forget(config('permission.cache.key'));
+
     }
 
     /**

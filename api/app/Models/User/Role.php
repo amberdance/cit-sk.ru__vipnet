@@ -17,7 +17,6 @@ class Role extends \Spatie\Permission\Models\Role
         'created_at',
         'updated_at',
         'pivot',
-        'deletable',
     ];
 
 }
