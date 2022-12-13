@@ -13,7 +13,6 @@ class UserResource extends JsonResource
 
         return array_merge(parent::toArray($request),
             [
-                'organization' => $this->organization,
 
                 $this->mergeWhen($routeName == 'me' || $routeName == 'login', [
                     'roles'       => $this->roles->pluck('name'),

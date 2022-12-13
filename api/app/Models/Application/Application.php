@@ -2,7 +2,10 @@
 
 namespace App\Models\Application;
 
+use App\Models\Signature;
+use App\Interfaces\ResourceModel;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Organization\Organization;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -16,14 +19,34 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string note
  * @property boolean is_active
  */
-class Application extends Model
+class Application extends Model implements ResourceModel
 {
 
     protected $guarded = [];
+    protected $casts   = [
+        "created_at"     => "datetime:d.m.Y",
+        "reception_date" => "datetime:d.m.Y",
+        "is_active"      => "boolean",
+    ];
 
-    public function notes(): HasOne
+    /**
+     * @return HasOne
+     */
+    public function organization(): HasOne
     {
         return $this->hasOne(Organization::class, "id", "organization_id");
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function signature(): HasOne
+    {
+        return $this->hasOne(Signature::class, "id", "signature_id");
+    }
+
+    public function paginate(){
+        return 123;
     }
 
 }

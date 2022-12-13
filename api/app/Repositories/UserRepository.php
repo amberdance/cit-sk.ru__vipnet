@@ -2,7 +2,9 @@
 namespace App\Repositories;
 
 use App\Helpers\ValidationHelper;
+use App\Http\Resources\User\UserCollection;
 use App\Http\Resources\User\UserResource;
+use App\Interfaces\IResourceCollection;
 use App\Interfaces\ResourceModel;
 use App\Interfaces\UserRepositoryInterface;
 use App\Lib\Constant;
@@ -17,19 +19,19 @@ class UserRepository implements UserRepositoryInterface
 {
 
     /**
-     * @return Collection
+     * @return IResourceCollection
      */
-    public function findAll(): Collection
+    public function findAll(): IResourceCollection
     {
-        return User::all();
+        return new UserCollection(User::all());
     }
 
     /**
      * @param array $filter
      *
-     * @return Collection
+     * @return IResourceCollection
      */
-    public function findByFilter(array $filter): Collection
+    public function findByFilter(array $filter): IResourceCollection
     {
         $query = User::select()->orderByDesc('id');
 

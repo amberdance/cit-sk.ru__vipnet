@@ -3,8 +3,6 @@
 namespace App\Interfaces;
 
 use App\Interfaces\ResourceModel;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 interface CrudRepositoryInterface
 {
@@ -32,16 +30,16 @@ interface CrudRepositoryInterface
     public function delete($id): int;
 
     /**
-     * @return Collection
+     * @return IResourceCollection
      */
-    public function findAll(): Collection;
+    public function findAll(): IResourceCollection;
 
     /**
      * @param array $filter
      *
-     * @return Collection
+     * @return IResourceCollection
      */
-    public function findByFilter(array $filter): Collection;
+    public function findByFilter(array $filter): IResourceCollection;
 
     /**
      * @param int $id

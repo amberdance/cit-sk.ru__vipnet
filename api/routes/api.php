@@ -1,11 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-/*
-|--------------------------------------------------------------------------
-| AUTH
-|--------------------------------------------------------------------------
- */
+
 Route::post('/auth/login', [\App\Http\Controllers\AuthController::class, 'login'])->name('login');
 
 Route::group([
@@ -16,3 +12,7 @@ Route::group([
         Route::get('/auth/logout', [\App\Http\Controllers\AuthController::class, 'logout']);
         Route::get('/auth/me', [\App\Http\Controllers\AuthController::class, 'me'])->name('me');
     });
+
+Route::apiResources([
+    '/applist' => \App\Http\Controllers\ApplistController::class,
+]);

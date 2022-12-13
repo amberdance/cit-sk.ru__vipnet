@@ -2,9 +2,10 @@
 
 namespace App\Http\Resources\User;
 
+use App\Interfaces\IResourceCollection;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class UserCollection extends ResourceCollection
+class UserCollection extends ResourceCollection implements IResourceCollection
 {
 
     /**

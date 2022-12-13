@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Interfaces\IResourceCollection;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class BaseCollection extends ResourceCollection
+class BaseCollection extends ResourceCollection implements IResourceCollection
 {
 
     /**
