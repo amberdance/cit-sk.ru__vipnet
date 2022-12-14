@@ -27,18 +27,16 @@ const routes = [
     path: "/home",
     redirect: localStorage.getItem("activeTab") || "/applist",
     component: () => import("@/views/Home"),
+  },
 
-    children: [
-      {
-        path: "/applist",
-        component: () => import("@/components/entity/Applist"),
-      },
+  {
+    path: "/applist",
+    component: () => import("@/components/entity/Applist"),
+  },
 
-      {
-        path: "/organizations",
-        component: () => import("@/components/entity/Organizations"),
-      },
-    ],
+  {
+    path: "/organizations",
+    component: () => import("@/components/entity/Organizations"),
   },
 ];
 

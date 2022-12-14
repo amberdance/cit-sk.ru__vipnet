@@ -1,19 +1,19 @@
 export const ROOT = "root";
 export const ADMIN = "admin";
-export const MANAGER = "manager";
+export const USER = "user";
 
-export const NAV_MENU = [
+export const MENU = [
   {
     title: "Заявки",
-    index: "1",
     route: "/applist",
     icon: "el-icon-menu",
+    roles: [ADMIN, USER],
   },
 
   {
     title: "Организации",
-    index: "2",
     route: "/organizations",
     icon: "el-icon-office-building",
+    roles: [ADMIN, USER],
   },
 ];

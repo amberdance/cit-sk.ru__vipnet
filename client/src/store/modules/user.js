@@ -72,7 +72,7 @@ export default {
       commit("update", { key: "me", data });
     },
 
-    deleteMe({ commit }) {
+    forgetMe({ commit }) {
       commit("clear", "me");
     },
   },

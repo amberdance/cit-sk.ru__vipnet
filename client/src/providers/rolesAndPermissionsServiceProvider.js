@@ -4,6 +4,7 @@ import { ROOT } from "@/values";
 const me = () => store.getters["user/me"];
 
 export const rolesAndPermissionsServiceProvider = {
+  isLoaded: () => !_.isEmpty(me()),
   roles: () => me().roles,
   permissions: () => me().permissions,
 

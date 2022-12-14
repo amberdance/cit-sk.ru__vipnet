@@ -1,97 +1,89 @@
 <template>
-  <el-container>
-    <div style="width: calc(100% - var(--filter-width))">
-      <el-table
-        height="85vh"
-        ref="table"
-        border
-        v-loading="isLoading"
-        :data="applist"
-        :default-sort="{ prop: 'id', order: 'descending' }"
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column align="center" type="selection" width="65" prop="id" />
+  <MainLayout>
+    <el-table
+      height="85vh"
+      ref="table"
+      border
+      v-loading="isLoading"
+      :data="applist"
+      :default-sort="{ prop: 'id', order: 'descending' }"
+      @selection-change="handleSelectionChange"
+    >
+      <el-table-column align="center" type="selection" width="65" prop="id" />
 
-        <el-table-column
-          align="center"
-          width="100"
-          prop="id"
-          label="Id"
-          sortable
-        >
-          <template #default="{ row }">
-            <span
-              class="column_clickable"
-              @click="$refs.ApplicationDialog.show(row)"
-              >{{ row.id }}</span
-            >
-          </template>
-        </el-table-column>
+      <el-table-column align="center" width="100" prop="id" label="Id" sortable>
+        <template #default="{ row }">
+          <span
+            class="column_clickable"
+            @click="$refs.ApplicationDialog.show(row)"
+            >{{ row.id }}</span
+          >
+        </template>
+      </el-table-column>
 
-        <el-table-column
-          label="Организация"
-          prop="organization.label"
-          width="350"
-          sortable
-        />
+      <el-table-column
+        label="Организация"
+        prop="organization.label"
+        width="350"
+        sortable
+      />
 
-        <el-table-column
-          prop="organization.taxId"
-          label="ИНН"
-          align="center"
-          width="150"
-          :formatter="defaultFormatter"
-        />
+      <el-table-column
+        prop="organization.taxId"
+        label="ИНН"
+        align="center"
+        width="150"
+        :formatter="defaultFormatter"
+      />
 
-        <el-table-column
-          prop="receptionDate"
-          width="200"
-          align="center"
-          label="Время записи"
-          sortable
-          :sort-method="(a, b) => dateSortMethod(a, b, 'createdAt')"
-        />
+      <el-table-column
+        prop="receptionDate"
+        width="200"
+        align="center"
+        label="Время записи"
+        sortable
+        :sort-method="(a, b) => dateSortMethod(a, b, 'createdAt')"
+      />
 
-        <el-table-column
-          prop="signature.label"
-          label="Тип записи"
-          width="200"
-          align="center"
-          sortable
-        />
+      <el-table-column
+        prop="signature.label"
+        label="Тип записи"
+        width="200"
+        align="center"
+        sortable
+      />
 
-        <el-table-column
-          prop="personCount"
-          label="Человек"
-          width="100"
-          align="center"
-          sortable
-        />
+      <el-table-column
+        prop="personCount"
+        label="Человек"
+        width="100"
+        align="center"
+        sortable
+      />
 
-        <el-table-column
-          prop="note"
-          label="Комментарий"
-          min-width="350"
-          :formatter="defaultFormatter"
-        />
-      </el-table>
+      <el-table-column
+        prop="note"
+        label="Комментарий"
+        min-width="350"
+        :formatter="defaultFormatter"
+      />
+    </el-table>
 
-      <div class="pagination_wrapper" v-if="pagination.total">
-        <el-pagination
-          class="pagination"
-          background
-          :total="pagination.total"
-          :current-page="pagination.currentPage"
-          :page-size="filter.perPage"
-          :page-sizes="pagination.pageSizes"
-          layout="sizes, prev, pager, next, jumper, total"
-          @current-change="handleClickPage"
-          @size-change="handleSizeChange"
-        ></el-pagination>
-      </div>
+    <div class="pagination_wrapper" v-if="pagination.total">
+      <el-pagination
+        class="pagination"
+        background
+        :total="pagination.total"
+        :current-page="pagination.currentPage"
+        :page-size="filter.perPage"
+        :page-sizes="pagination.pageSizes"
+        layout="sizes, prev, pager, next, jumper, total"
+        @current-change="handleClickPage"
+        @size-change="handleSizeChange"
+      ></el-pagination>
     </div>
 
-    <FilterLayout>
+    <FilterLayout slot="filterPanel">
       <template>
         <el-date-picker
           v-model="filter.receptionDate"
@@ -122,33 +114,37 @@
           @click="$refs.ApplicationDialog.show()"
           >Создать заявку</el-button
         >
-
-        <transition name="el-fade-in">
-          <el-button
-            v-show="selectedRows.length"
-            size="mini"
-            type="danger"
-            @click="deleteApplication"
-            >Удалить({{ selectedRows.length }})</el-button
-          >
-        </transition>
       </template>
     </FilterLayout>
 
+    <ControlBar :visible="Boolean(selectedRows.length)">
+      <transition name="el-fade-in">
+        <el-button
+          v-show="selectedRows.length"
+          size="mini"
+          type="danger"
+          @click="deleteApplication"
+          >Удалить({{ selectedRows.length }})</el-button
+        >
+      </transition>
+    </ControlBar>
+
     <ApplicationDialog ref="ApplicationDialog" />
-  </el-container>
+  </MainLayout>
 </template>
 
 <script>
 import TableMixin from "@/mixins/TableMixin";
 import DatepickerMixin from "@/mixins/DatepickerMixin";
 import PaginationMixin from "@/mixins/PaginationMixin";
-import FilterLayout from "@/components/common/FilterLayout";
+import MainLayout from "@/components/layouts/MainLayout";
+import FilterLayout from "@/components/layouts/FilterLayout";
+import ControlBar from "@/components/common/ControlBar";
 import ApplicationDialog from "./ApplicationDialog";
 import { removeEmptyFields } from "@/helpers/commonHelper";
 
 export default {
-  components: { FilterLayout, ApplicationDialog },
+  components: { MainLayout, FilterLayout, ApplicationDialog, ControlBar },
   mixins: [TableMixin, DatepickerMixin, PaginationMixin],
 
   data() {

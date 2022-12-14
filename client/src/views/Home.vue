@@ -1,28 +1,13 @@
 <template>
-  <el-container>
-    <el-header>
-      <Header>
-        <template #navMenu>
-          <NavMenu />
-        </template>
-      </Header>
-    </el-header>
-
-    <el-container>
-      <el-main>
-        <slot>
-          <router-view />
-        </slot>
-      </el-main>
-    </el-container>
-  </el-container>
+  <MainLayout />
 </template>
 
 <script>
-import Header from "@/components/common/Header";
-import NavMenu from "@/components/common/NavMenu";
+import MainLayout from "@/components/layouts/MainLayout";
 
 export default {
-  components: { Header, NavMenu },
+  components: {
+    MainLayout,
+  },
 };
 </script>

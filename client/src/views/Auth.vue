@@ -1,11 +1,11 @@
 <template>
-  <div>
-    <div :class="$style.overlay"></div>
+  <fragment>
+    <div class="overlay"></div>
 
-    <div :class="$style.wrapper">
-      <img :class="$style.logo" src="../assets/citsk_logo.png" />
+    <div class="wrapper">
+      <img class="logo" src="../assets/citsk_logo.png" />
 
-      <div :class="$style.title">Заявки на получение эцп</div>
+      <div class="title">Заявки на получение эцп</div>
 
       <el-form ref="form" :model="formData" :rules="formRules">
         <el-form-item prop="login">
@@ -27,7 +27,7 @@
           />
         </el-form-item>
 
-        <div :class="$style.btn_wrapper">
+        <div class="btn_wrapper">
           <el-button
             native-type="submit"
             size="small"
@@ -38,12 +38,12 @@
         </div>
       </el-form>
 
-      <div :class="$style.developer">
+      <div class="developer">
         <div>2020 - {{ new Date().getFullYear() }}</div>
         <div>ГКУ СК "Краевой центр информтехнологий"</div>
       </div>
     </div>
-  </div>
+  </fragment>
 </template>
 
 <script>
@@ -110,13 +110,14 @@ export default {
 };
 </script>
 
-<style module>
+<style scoped>
 .overlay {
   position: absolute;
   width: 100%;
   height: 100%;
   background-color: #000401c2;
 }
+
 .wrapper {
   color: white;
   background: url("../assets/background.png");
@@ -128,7 +129,9 @@ export default {
   height: 100vh;
   align-items: center;
   flex-direction: column;
+  width: 100%;
 }
+
 .title {
   text-align: center;
   border-bottom: 1px white solid;
@@ -137,25 +140,31 @@ export default {
   font-size: 18px;
   padding: 1rem 0;
 }
+
 .title,
 .developer {
   width: 350px;
 }
+
 .title,
 .developer,
 form {
   z-index: 999;
 }
+
 form {
   padding: 1rem;
 }
+
 .btn_wrapper {
   display: flex;
   justify-content: center;
 }
+
 .btn_wrapper button {
   width: 100%;
 }
+
 .developer {
   border-top: 1px white solid;
   padding-top: 1rem;
@@ -164,9 +173,11 @@ form {
   align-items: flex-end;
   font-size: 14px;
 }
+
 .overlay_logo {
   background-color: #525252c2;
 }
+
 .overlay_logo,
 .logo {
   position: absolute;

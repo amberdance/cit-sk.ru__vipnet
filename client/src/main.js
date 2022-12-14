@@ -3,6 +3,7 @@ import App from "@/App";
 import router from "@/router";
 import store from "@/store";
 import VueCookies from "vue-cookies-reactive";
+import { Fragment } from "vue-frag";
 
 import "@/providers/axiosServiceProvider";
 import "@/plugins/element";
@@ -14,6 +15,7 @@ import "@/styles/grid.css";
 Vue.config.productionTip = false;
 
 Vue.use(VueCookies);
+Vue.component("Fragment", Fragment);
 
 new Vue({
   router,

@@ -1,7 +1,22 @@
 <template>
   <div id="app">
-    <transition name="el-fade-in-linear">
+    <HeaderLayout v-if="$user.isAuthorized()" />
+
+    <el-container>
+      <NavigationMenu v-if="$user.isAuthorized() && $user.isLoaded()" />
       <router-view />
-    </transition>
+    </el-container>
   </div>
 </template>
+
+<script>
+import HeaderLayout from "@/components/layouts/HeaderLayout";
+import NavigationMenu from "@/components/common/NavigationMenu";
+
+export default {
+  components: {
+    NavigationMenu,
+    HeaderLayout,
+  },
+};
+</script>
