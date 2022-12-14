@@ -29,8 +29,9 @@ export default {
 
   methods: {
     logout() {
-      this.$auth.logout();
-      this.$router.push("/auth");
+      this.$logout();
+      this.$store.dispatch("user/deleteMe");
+      this.$router.push("/logout");
     },
   },
 };

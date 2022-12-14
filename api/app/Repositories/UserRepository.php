@@ -58,9 +58,9 @@ class UserRepository implements UserRepositoryInterface
     /**
      * @param array $params
      *
-     * @return ResourceModel
+     * @return Model
      */
-    public function create(array $params): ResourceModel
+    public function create(array $params): User
     {
         $user                  = new User;
         $user->first_name      = ValidationHelper::mbUcFirst($params['first_name']);
@@ -142,6 +142,16 @@ class UserRepository implements UserRepositoryInterface
         User::forgetSharedCache();
 
         return count($trulyIds) ? User::whereIn('id', $trulyIds)->delete() : 0;
+    }
+
+    /**
+     * @param array $ids
+     * 
+     * @return int
+     */
+    public function massDelete(array $ids): int
+    {
+        return User::whereIn($ids)->delete();
     }
 
     /**

@@ -6,28 +6,24 @@ export default {
 
   state: {
     organizations: [],
+    pagination: {},
   },
 
   getters: {
     index: (state) => Object.values(state.organizations),
+    pagination: (state) => state.pagination,
   },
 
-  mutations: {
-    ...mutations,
-  },
+  mutations,
 
   actions: {
     async index({ commit }, params) {
       commit("clear", "organizations");
+      commit("clear", "pagination");
 
-      const organizations = await httpServiceProvider.get(
-        "/organizations",
-        params
-      );
+      const data = await httpServiceProvider.get("/organizations", params);
 
-      organizations.forEach((data) =>
-        commit("set", { key: "organizations", data })
-      );
+      commit("massSet", { key: "organizations", data });
     },
 
     async create({ commit }, params) {
@@ -37,6 +33,8 @@ export default {
         key: "organizations",
         data,
       });
+
+      return data;
     },
 
     async update({ commit }, { id, params }) {
@@ -58,7 +56,7 @@ export default {
     },
 
     async massDelete({ commit }, ids) {
-      await httpServiceProvider.post("/organizations}/remove", { ids });
+      await httpServiceProvider.post("/organizations/remove", { ids });
 
       commit("delete", { key: "organizations", id: ids });
     },

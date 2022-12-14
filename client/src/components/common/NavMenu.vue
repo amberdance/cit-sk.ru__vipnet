@@ -52,4 +52,8 @@ export default {
 .menu_wrapper i {
   color: #ffffff !important;
 }
+
+.menu_wrapper ul {
+  border-bottom: none !important;
+}
 </style>

@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-use App\Interfaces\ResourceModel;
+use Illuminate\Database\Eloquent\Model;
 
 interface CrudRepositoryInterface
 {
@@ -10,17 +10,17 @@ interface CrudRepositoryInterface
     /**
      * @param array $fields
      *
-     * @return ResourceModel
+     * @return Model
      */
-    public function create(array $fields): ResourceModel;
+    public function create(array $fields): Model;
 
     /**
      * @param int $id
      * @param array $fields
      *
-     * @return ResourceModel
+     * @return Model
      */
-    public function update(int $id, array $fields): ResourceModel;
+    public function update(int $id, array $fields): Model;
 
     /**
      * @param int $id
@@ -28,6 +28,13 @@ interface CrudRepositoryInterface
      * @return int
      */
     public function delete($id): int;
+
+    /**
+     * @param array $ids
+     *
+     * @return int
+     */
+    public function massDelete(array $ids): int;
 
     /**
      * @return IResourceCollection
@@ -44,7 +51,7 @@ interface CrudRepositoryInterface
     /**
      * @param int $id
      *
-     * @return ResourceModel
+     * @return Model
      */
-    public function findById(int $id): ResourceModel;
+    public function findById(int $id): Model;
 }

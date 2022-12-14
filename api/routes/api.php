@@ -14,5 +14,10 @@ Route::group([
     });
 
 Route::apiResources([
-    '/applist' => \App\Http\Controllers\ApplistController::class,
+    '/applist'       => \App\Http\Controllers\ApplistController::class,
+    "/signatures"    => \App\Http\Controllers\SignatureController::class,
+    "/organizations" => \App\Http\Controllers\OrganizationController::class,
 ]);
+
+Route::post("/applist/remove", [\App\Http\Controllers\ApplistController::class, "massDelete"]);
+Route::post("/organizations/remove", [\App\Http\Controllers\OrganizationController::class, "massDelete"]);

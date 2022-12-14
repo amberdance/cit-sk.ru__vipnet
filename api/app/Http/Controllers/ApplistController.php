@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Interfaces\CrudRepositoryInterface;
+use App\Repositories\ApplistRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -13,9 +14,9 @@ class ApplistController extends Controller
      */
     private $applistRepository;
 
-    public function __construct(CrudRepositoryInterface $applistRepository)
+    public function __construct()
     {
-        $this->applistRepository = $applistRepository;
+        $this->applistRepository = new ApplistRepository();
 
     }
 
@@ -37,7 +38,11 @@ class ApplistController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'note' => 'nullable|string|min:6',
+            'organization_id' => "integer|required",
+            "signature_id"    => "integer|required",
+            "person_count"    => "integer|required",
+            "reception_date"  => "date|required",
+            'note'            => 'nullable|string',
         ]);
 
         return $this->jsonSuccess($this->applistRepository->create($request->all()));
@@ -52,8 +57,11 @@ class ApplistController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         $request->validate([
-            'status_id' => 'nullable|integer',
-            'is_done'   => 'nullable|boolean',
+            'reception_date'  => 'nullable|date',
+            'organization_id' => 'nullable|integer',
+            'signature_id'    => 'nullable|integer',
+            'person_count'    => 'nullable|integer',
+            'note'            => 'nullable|string',
         ]);
 
         return $this->jsonSuccess($this->applistRepository->update($id, $request->all()));
@@ -67,6 +75,21 @@ class ApplistController extends Controller
     public function destroy(int $id): JsonResponse
     {
         return $this->jsonSuccess($this->applistRepository->delete($id));
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function massDelete(Request $request): JsonResponse
+    {
+
+        $request->validate([
+            "ids" => "array|required",
+        ]);
+
+        return $this->jsonSuccess($this->applistRepository->massDelete($request->ids));
     }
 
 }

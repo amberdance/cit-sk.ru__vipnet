@@ -70,8 +70,6 @@ export default {
         key: entity,
         id: ids,
       });
-
-      commit("clear", entity);
     },
   },
 };

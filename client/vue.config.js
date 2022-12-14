@@ -2,7 +2,7 @@ process.env.VUE_APP_VERSION = require("./package.json").version;
 process.env.VUE_APP_TITLE = "Заявки на получение ЭЦП";
 process.env.VUE_APP_API_URL =
   process.env.NODE_ENV == "development"
-    ? "http://crp.ru/api"
+    ? "http://crp.cit-sk.ru/api"
     : "http://cryptoapps.citsk.ru/api";
 
 module.exports = {

@@ -1,6 +1,5 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import { ADMIN } from "../values";
 
 const originalPush = VueRouter.prototype.push;
 
@@ -20,6 +19,11 @@ const routes = [
   },
 
   {
+    path: "/logout",
+    component: () => import("@/views/Auth"),
+  },
+
+  {
     path: "/home",
     redirect: localStorage.getItem("activeTab") || "/applist",
     component: () => import("@/views/Home"),
@@ -27,24 +31,12 @@ const routes = [
     children: [
       {
         path: "/applist",
-        component: () => import("@/components/applist/Applist"),
+        component: () => import("@/components/entity/Applist"),
       },
 
       {
-        path: "/refs",
-        component: () => import("@/components/organization/Organizations"),
-      },
-
-      {
-        path: "/logs",
-        meta: { roles: [ADMIN] },
-        component: () => import("@/components/applist/Logs"),
-      },
-
-      {
-        path: "/trash",
-        meta: { roles: [ADMIN] },
-        component: () => import("@/components/applist/Trash"),
+        path: "/organizations",
+        component: () => import("@/components/entity/Organizations"),
       },
     ],
   },

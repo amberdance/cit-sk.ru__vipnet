@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Application\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -13,8 +14,11 @@ class Signature extends Model
 {
     protected $guarded = [];
 
+    /**
+     * @return HasMany
+     */
     public function applications(): HasMany
     {
-        return $this->hasMany(User::class, "id", "user_id");
+        return $this->hasMany(Application::class, "signature_id", "id");
     }
 }

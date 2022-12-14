@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Models\Application;
+namespace App\Models;
 
+use App\Models\Organization;
 use App\Models\Signature;
-use App\Interfaces\ResourceModel;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Organization\Organization;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -19,13 +18,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string note
  * @property boolean is_active
  */
-class Application extends Model implements ResourceModel
+class Application extends Model
 {
 
     protected $guarded = [];
     protected $casts   = [
-        "created_at"     => "datetime:d.m.Y",
-        "reception_date" => "datetime:d.m.Y",
+        "reception_date" => "datetime:Y-m-d H:i:s",
         "is_active"      => "boolean",
     ];
 
@@ -45,7 +43,8 @@ class Application extends Model implements ResourceModel
         return $this->hasOne(Signature::class, "id", "signature_id");
     }
 
-    public function paginate(){
+    public function paginate()
+    {
         return 123;
     }
 

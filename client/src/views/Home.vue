@@ -1,7 +1,5 @@
 <template>
   <el-container>
-    <Preloader v-show="isLoading" />
-
     <el-header>
       <Header>
         <template #navMenu>
@@ -19,18 +17,12 @@
     </el-container>
   </el-container>
 </template>
+
 <script>
-import Preloader from "@/components/Preloader";
-import Header from "@/components/Header";
-import NavMenu from "@/components/NavMenu";
+import Header from "@/components/common/Header";
+import NavMenu from "@/components/common/NavMenu";
 
 export default {
-  components: { Preloader, Header, NavMenu },
-
-  computed: {
-    isLoading() {
-      return this.$store.getters["common/isLoading"];
-    },
-  },
+  components: { Header, NavMenu },
 };
 </script>
