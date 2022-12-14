@@ -72,7 +72,7 @@ class Handler extends ExceptionHandler
             return TraitResponse::jsonUnathorized();
         }
 
-        if ($e instanceof ForbiddenException || $e instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
+        if ($e instanceof ForbiddenException || $e instanceof \Spatie\Permission\Exceptions\UnauthorizedException || $e instanceof \Illuminate\Auth\Access\AuthorizationException) {
             return TraitResponse::jsonForbidden($e->getMessage());
         }
 

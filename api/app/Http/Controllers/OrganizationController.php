@@ -36,6 +36,9 @@ class OrganizationController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+
+        $this->authorize("organization.create");
+
         $request->validate([
             "label"         => "string|required",
             "tax_id"        => "string|required",
@@ -56,6 +59,9 @@ class OrganizationController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
+
+        $this->authorize("organization.update");
+
         $request->validate([
             "label"         => "string|nullable",
             "tax_id"        => "string|nullable",
@@ -75,6 +81,9 @@ class OrganizationController extends Controller
      */
     public function destroy(int $id): JsonResponse
     {
+
+        $this->authorize("organization.delete");
+
         return $this->jsonSuccess($this->organizationRepository->delete($id));
     }
 
@@ -85,6 +94,8 @@ class OrganizationController extends Controller
      */
     public function massDelete(Request $request): JsonResponse
     {
+
+        $this->authorize("organization.delete");
 
         $request->validate([
             "ids" => "array|required",

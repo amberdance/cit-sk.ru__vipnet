@@ -37,6 +37,9 @@ class ApplistController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+
+        $this->authorize("application.create");
+
         $request->validate([
             'organization_id' => "integer|required",
             "signature_id"    => "integer|required",
@@ -56,6 +59,9 @@ class ApplistController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
+
+        $this->authorize("application.update");
+
         $request->validate([
             'reception_date'  => 'nullable|date',
             'organization_id' => 'nullable|integer',
@@ -74,6 +80,9 @@ class ApplistController extends Controller
      */
     public function destroy(int $id): JsonResponse
     {
+
+        $this->authorize("application.delete");
+
         return $this->jsonSuccess($this->applistRepository->delete($id));
     }
 
@@ -84,6 +93,7 @@ class ApplistController extends Controller
      */
     public function massDelete(Request $request): JsonResponse
     {
+        $this->authorize("application.delete");
 
         $request->validate([
             "ids" => "array|required",

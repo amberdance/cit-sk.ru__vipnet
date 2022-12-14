@@ -40,6 +40,7 @@
                 size="small"
                 placeholder="инн, наименование"
                 :remote-method="remoteSearch"
+                :loading="isSearching"
                 @change="onOrganizationChange"
               >
                 <el-option
@@ -145,6 +146,7 @@ export default {
       isLoading: false,
       isUpdateDialog: false,
       isVisible: false,
+      isSearching: false,
       original: {},
       copied: {},
 
@@ -267,13 +269,19 @@ export default {
         return;
       }
 
-      this.options.organizations = this.organizations.filter(
-        (item) =>
-          item.label.toLowerCase().indexOf(search.toLowerCase()) !== -1 ||
-          item.taxId.indexOf(search) !== -1
-      );
-
-      this.options.organizations.unshift(this.options.defaultOption);
+      try {
+        this.isSearching = true;
+        this.options.organizations = await this.$http.get("/organizations", {
+          search,
+        });
+        this.options.organizations.unshift(this.options.defaultOption);
+      } catch (e) {
+        if (e.code == 422) return;
+        if (e.code == 403) return this.$onError("Доступ запрещен");
+        console.error(e);
+      } finally {
+        this.isSearching = false;
+      }
     },
 
     async create() {

@@ -44,12 +44,15 @@ const errorCollection = {
       });
     },
 
-    403: (error) =>
-      Promise.reject({
+    403: (error) => {
+      onError("Доступ запрещен");
+
+      return Promise.reject({
         code: error.response.status,
         message:
           error.response.data.message ?? error.response.data.error.message,
-      }),
+      });
+    },
 
     400: (error) => {
       onError("Параметры Http запроса указаны некорректно");

@@ -75,13 +75,9 @@ class RolesAndPermissionsSeeder extends Seeder
         Role::findByName(Constant::USER_ROLE)->givePermissionTo([
             'application.viewAny',
             'application.create',
-            'application.delete',
             'application.update',
 
             'organization.viewAny',
-            'organization.create',
-            'organization.delete',
-            'organization.update',
         ]);
 
     }

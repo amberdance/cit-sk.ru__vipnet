@@ -190,13 +190,10 @@ export default {
     try {
       this.debouncedWatch = _.debounce(() => this.getApplist(), 250);
 
-      if (_.isEmpty(this.applist)) await this.getApplist();
+      await this.getApplist();
 
       if (_.isEmpty(this.$store.getters["storage/index"]("signatures")))
         await this.getSignatures();
-
-      if (_.isEmpty(this.$store.getters["organization/index"]))
-        await this.getOrganizations();
 
       if (!_.isEmpty(this.applistPagination))
         this.pagination.total = this.applistPagination.total;
