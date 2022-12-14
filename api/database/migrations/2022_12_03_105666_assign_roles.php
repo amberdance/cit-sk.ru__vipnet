@@ -15,7 +15,7 @@ return new class extends Migration
 
         foreach (User::all() as $user) {
             if ($user->login == "super1") {
-                $user->login = "admin";
+                $user->login = "admin1";
                 $user->assignRole(Constant::ADMIN_ROLE);
                 $user->save();
             }
@@ -25,16 +25,24 @@ return new class extends Migration
             }
         }
 
-        // Create root user here
-        $usersList = require_once storage_path("app/users.php");
+        $usersList = require storage_path("app/users.php");
 
+        // Create root user here
         $user             = new User();
         $user->login      = Constant::ROOT_ROLE;
         $user->first_name = Constant::ROOT_ROLE;
-        $user->last_name  = Constant::ROOT_ROLE;
         $user->password   = Hash::make($usersList[Constant::ROOT_ROLE]);
         $user->assignRole(Constant::ROOT_ROLE);
         $user->save();
+
+        // Create admin here
+        $user             = new User();
+        $user->login      = "admin2";
+        $user->first_name = "Администратор №2";
+        $user->password   = Hash::make($usersList["admin2"]);
+        $user->assignRole(Constant::ADMIN_ROLE);
+        $user->save();
+
     }
 
     public function down()

@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Signature extends Model
 {
+
+    public $timestamps = false;
     protected $guarded = [];
 
     /**

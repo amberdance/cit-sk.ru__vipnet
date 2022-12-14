@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Signature;
 use App\Models\User\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -19,10 +20,10 @@ return new class extends Migration
          *********************************/
 
         Schema::rename("refs", "organizations");
-        Schema::rename("refs_note", "organization_notes");
         Schema::rename("applist", "applications");
-        Schema::rename("applist_log", "application_logs");
-        Schema::rename("event", "events");
+        Schema::rename("refs_note", "organization_notes_deprecated");
+        Schema::rename("applist_log", "application_logs_deprecated");
+        Schema::rename("event", "events__deprecated");
         Schema::rename("signature_type", "signatures");
         Schema::drop("responsibles");
         Schema::drop("applist_history");
@@ -33,19 +34,20 @@ return new class extends Migration
          *         ORGANIZATIONS
          *********************************/
 
-        DB::statement(" ALTER TABLE organizations CHANGE created created_at TIMESTAMP(6) NULL DEFAULT CURRENT_TIMESTAMP");
-        DB::statement(" ALTER TABLE organization_notes CHANGE created created_at TIMESTAMP(6) NULL DEFAULT CURRENT_TIMESTAMP");
+        DB::statement("ALTER TABLE organizations CHANGE created created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP");
+        DB::statement("ALTER TABLE organization_notes_deprecated CHANGE created created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP");
 
         Schema::table('organizations', function (Blueprint $table) {
-            $table->integer("note_id")->nullable();
-            $table->foreign("note_id")->references("id")->on("organization_notes");
+            $table->text("note")->nullable();
+            // $table->integer("note_id")->nullable();
+            // $table->foreign("note_id")->references("id")->on("organization_notes_deprecated");
         });
 
-        Schema::table('organization_notes', function (Blueprint $table) {
+        Schema::table('organization_notes_deprecated', function (Blueprint $table) {
             $table->renameColumn('ref_id', "organization_id");
             $table->longText("content")->change();
             $table->renameColumn('content', "description");
-            $table->foreign("organization_id")->references("id")->on("organizations");
+            // $table->foreign("organization_id")->references("id")->on("organizations");
         });
 
         /********************************
@@ -72,9 +74,9 @@ return new class extends Migration
         foreach ($users as $login => $password) {
             try {
                 /** @var User */
-                $user             = User::where("login", $login)->first();
+                $user             = User::where("login", $login)->firstOrFail();
                 $user->created_at = Carbon::now();
-                $user->first_name = "Пользователь №" . $i++;
+                $user->first_name = is_numeric(strpos($user->login, "super")) ? "Администратор №" . $i++ : "Пользователь №" . $i++;
                 $user->password   = Hash::make($password);
                 $user->save();
             } catch (Exception $e) {
@@ -110,13 +112,29 @@ return new class extends Migration
 
         Schema::table("applications", fn(Blueprint $table) => $table->dropColumn("created"));
 
-        Schema::table('application_logs', function (Blueprint $table) {
+        Schema::table('application_logs_deprecated', function (Blueprint $table) {
             $table->dropColumn('created');
             $table->renameColumn("entity_id", "application_id");
-            $table->foreign("event_id")->references("id")->on("events");
-            $table->foreign("user_id")->references("id")->on("users");
+            // $table->foreign("event_id")->references("id")->on("events");
+            // $table->foreign("user_id")->references("id")->on("users");
         });
 
+        /********************************
+         *         SIGNATURES
+         *********************************/
+
+        foreach (["Vipnet 11074", "Vipnet 2040"] as $key => $value) {
+            $signature        = new Signature();
+            $signature->label = $value;
+            $signature->save();
+        }
+
+         /********************************
+         *         CLEAN UP
+         *********************************/
+
+        DB::statement("UPDATE signatures SET label = CONCAT(UCASE(LEFT(label, 1)), SUBSTRING(label, 2));");
+        DB::statement("UPDATE applications SET note = CONCAT(UCASE(LEFT(note, 1)), SUBSTRING(note, 2));");
     }
 
     public function down()
