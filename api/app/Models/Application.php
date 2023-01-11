@@ -23,7 +23,7 @@ class Application extends Model
 
     protected $guarded = [];
     protected $casts   = [
-        "reception_date" => "datetime:Y-m-d H:i:s",
+        "reception_date" => "datetime:H:i d-m-Y",
         "is_active"      => "boolean",
     ];
 
