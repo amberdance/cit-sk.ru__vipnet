@@ -28,7 +28,7 @@ axios.interceptors.response.use(
 
 router.beforeEach(async (to, from, next) => {
   if (authServiceProvider.isAuthorized()) {
-    const version = VUE_APP_VERSION;
+    const version = process.env.VUE_APP_API_URL;
 
     if (version !== localStorage.getItem("version"))
       try {

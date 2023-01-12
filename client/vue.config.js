@@ -3,7 +3,7 @@ process.env.VUE_APP_TITLE = "Заявки на получение ЭЦП";
 process.env.VUE_APP_API_URL =
   process.env.NODE_ENV == "development"
     ? "http://crp.cit-sk.ru/api"
-    : "http://cryptoapps.citsk.ru/api";
+    : "http://cryptoapps.cit-sk.ru/api";
 
 module.exports = {
   productionSourceMap: false,
