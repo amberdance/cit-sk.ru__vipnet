@@ -25,19 +25,5 @@ export default {
     defaultFormatter(row, column, value) {
       return value || "-";
     },
-
-    dateSortMethod(a, b, prop) {
-      const aa = new Date(this.parseDate(a[prop]));
-      const bb = new Date(this.parseDate(b[prop]));
-
-      return aa > bb ? -1 : aa == bb ? 0 : 1;
-    },
-
-    parseDate(date) {
-      return date
-        .split(/[ -.//]/)
-        .reverse()
-        .join(" ");
-    },
   },
 };

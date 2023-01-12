@@ -33,6 +33,7 @@
         label="ИНН"
         align="center"
         width="150"
+        sortable
         :formatter="defaultFormatter"
       />
 
@@ -42,7 +43,8 @@
         align="center"
         label="Время записи"
         sortable
-        :sort-method="(a, b) => dateSortMethod(a, b, 'createdAt')"
+        :formatter="receptionDateFormatter"
+        :sort-method="receptionDateSort"
       />
 
       <el-table-column
@@ -65,6 +67,7 @@
         prop="note"
         label="Комментарий"
         min-width="350"
+        sortable
         :formatter="defaultFormatter"
       />
     </el-table>
@@ -142,6 +145,7 @@ import FilterLayout from "@/components/layouts/FilterLayout";
 import ControlBar from "@/components/common/ControlBar";
 import ApplicationDialog from "./ApplicationDialog";
 import { removeEmptyFields } from "@/helpers/commonHelper";
+import moment from "moment";
 
 export default {
   components: { MainLayout, FilterLayout, ApplicationDialog, ControlBar },
@@ -271,6 +275,14 @@ export default {
       } finally {
         this.isLoading = false;
       }
+    },
+
+    receptionDateFormatter(row, column, receptionDate) {
+      return moment(receptionDate).format("HH:mm DD-MM-YYYY");
+    },
+
+    receptionDateSort(a, b) {
+      return moment(b.receptionDate) - moment(a.receptionDate);
     },
   },
 };
